@@ -8,7 +8,7 @@ RUN npm ci --legacy-peer-deps
 
 COPY . .
 
-RUN npm run build
+RUN npx nest build
 
 EXPOSE 8080
 
