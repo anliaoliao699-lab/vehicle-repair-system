@@ -1,0 +1,171 @@
+page {
+  background-color: #f5f5f5;
+}
+
+.work-order-list {
+  position: relative;
+  padding-bottom: 80rpx;
+}
+
+/* 搜索栏 */
+.search-bar {
+  padding: 16rpx;
+  background: white;
+  border-bottom: 1rpx solid #e0e0e0;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.search-input {
+  width: 100%;
+  padding: 12rpx 16rpx;
+  border: 1rpx solid #e0e0e0;
+  border-radius: 20rpx;
+  background-color: #f5f5f5;
+  font-size: 28rpx;
+}
+
+/* 筛选器 */
+.status-filter {
+  padding: 12rpx 16rpx;
+  background: white;
+  border-bottom: 1rpx solid #e0e0e0;
+}
+
+.status-picker {
+  padding: 8rpx 12rpx;
+  background-color: #f0f0f0;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  display: inline-block;
+}
+
+.picker-value {
+  padding: 6rpx 12rpx;
+}
+
+/* 工单列表 */
+.order-list {
+  padding: 12rpx;
+}
+
+.order-card {
+  background: white;
+  border-radius: 12rpx;
+  padding: 20rpx;
+  margin-bottom: 12rpx;
+  box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
+  transition: transform 0.2s;
+}
+
+.order-card:active {
+  transform: scale(0.98);
+}
+
+.order-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12rpx;
+}
+
+.order-no {
+  font-size: 32rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.order-status {
+  font-size: 20rpx;
+  color: white;
+  padding: 6rpx 12rpx;
+  border-radius: 16rpx;
+  background-color: #0066ff;
+}
+
+.order-vehicle {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12rpx;
+  font-size: 26rpx;
+  color: #666;
+}
+
+.vehicle-icon {
+  font-size: 28rpx;
+  margin-right: 8rpx;
+}
+
+.vehicle-info {
+  flex: 1;
+}
+
+.order-description {
+  font-size: 24rpx;
+  color: #999;
+  margin-bottom: 12rpx;
+}
+
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.order-cost {
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #ff6b6b;
+}
+
+.order-date {
+  font-size: 22rpx;
+  color: #bbb;
+}
+
+/* 空状态 */
+.empty-state {
+  text-align: center;
+  padding: 100rpx 20rpx;
+}
+
+.empty-icon {
+  font-size: 80rpx;
+  margin-bottom: 16rpx;
+}
+
+.empty-text {
+  font-size: 28rpx;
+  color: #999;
+  margin-bottom: 40rpx;
+}
+
+.create-btn {
+  width: 200rpx;
+  margin: 0 auto;
+}
+
+/* 浮动按钮 */
+.fab-button {
+  position: fixed;
+  bottom: 80rpx;
+  right: 20rpx;
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 60rpx;
+  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.4);
+  z-index: 99;
+}
+
+.fab-button:active {
+  transform: scale(0.9);
+}

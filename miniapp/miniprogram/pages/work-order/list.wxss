@@ -1,0 +1,303 @@
+/* ========== 基础容器 ========== */
+.work-order-list {
+  min-height: 100vh;
+  background: #f5f7fa;
+  padding-bottom: 120rpx;
+}
+
+/* ========== 顶部标题栏 ========== */
+.page-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 40rpx 32rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4rpx 12rpx rgba(102, 126, 234, 0.2);
+}
+
+.header-title {
+  font-size: 40rpx;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 0 2rpx 4rpx rgba(0,0,0,0.1);
+}
+
+.header-count {
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 8rpx 20rpx;
+  border-radius: 20rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+  backdrop-filter: blur(10rpx);
+}
+
+/* ========== 搜索栏 ========== */
+.search-bar {
+  padding: 24rpx;
+  background: #fff;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background: #f5f7fa;
+  border-radius: 12rpx;
+  padding: 20rpx 24rpx;
+  border: 2rpx solid #e8e8e8;
+  transition: all 0.3s;
+}
+
+.search-container:focus-within {
+  border-color: #667eea;
+  background: #fff;
+}
+
+.search-icon {
+  font-size: 32rpx;
+  margin-right: 12rpx;
+  color: #999;
+}
+
+.search-input {
+  flex: 1;
+  font-size: 28rpx;
+  color: #333;
+}
+
+/* ========== 状态筛选 ========== */
+.status-filter {
+  padding: 0 24rpx 24rpx;
+  background: #fff;
+}
+
+.status-picker {
+  width: 100%;
+}
+
+.picker-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #f5f7fa;
+  padding: 20rpx 24rpx;
+  border-radius: 12rpx;
+  border: 2rpx solid #e8e8e8;
+}
+
+.picker-label {
+  font-size: 28rpx;
+  color: #666;
+  font-weight: 500;
+}
+
+.picker-value {
+  flex: 1;
+  text-align: center;
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.picker-arrow {
+  font-size: 20rpx;
+  color: #999;
+}
+
+/* ========== 工单列表 ========== */
+.order-list {
+  padding: 0 24rpx;
+}
+
+.order-card {
+  background: #fff;
+  margin-bottom: 24rpx;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.06);
+  position: relative;
+  transition: all 0.3s;
+  overflow: hidden;
+}
+
+.order-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.08);
+}
+
+/* ✅ 右上角状态徽章 */
+.status-badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 12rpx 24rpx 12rpx 32rpx;
+  border-radius: 0 16rpx 0 24rpx;
+  font-size: 24rpx;
+  font-weight: bold;
+  color: #fff;
+  box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.2);
+}
+
+/* ✅ 车辆信息头部 - 大字加粗 */
+.vehicle-header {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-bottom: 20rpx;
+  padding-right: 120rpx; /* 为右上角状态徽章留空间 */
+}
+
+.vehicle-icon {
+  font-size: 40rpx;
+}
+
+.vehicle-text {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #000;
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+/* 工单描述 */
+.order-description {
+  background: #f8f9fa;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  margin-bottom: 20rpx;
+  display: flex;
+  gap: 12rpx;
+}
+
+.desc-label {
+  font-size: 26rpx;
+  color: #999;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.desc-text {
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+  flex: 1;
+  word-break: break-all;
+}
+
+/* 工单底部 */
+.order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.footer-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8rpx;
+}
+
+.footer-label {
+  font-size: 24rpx;
+  color: #999;
+}
+
+.footer-value {
+  font-size: 28rpx;
+  color: #333;
+  font-weight: 500;
+}
+
+.footer-value.price {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #ff6b6b;
+}
+
+.footer-value.time {
+  font-size: 24rpx;
+  color: #999;
+}
+
+/* ========== 空状态 ========== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 120rpx 40rpx;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  margin-bottom: 24rpx;
+  opacity: 0.3;
+}
+
+.empty-text {
+  font-size: 32rpx;
+  color: #999;
+  margin-bottom: 12rpx;
+  font-weight: 500;
+}
+
+.empty-hint {
+  font-size: 26rpx;
+  color: #bbb;
+  line-height: 1.6;
+}
+
+/* ========== 创建工单按钮 ========== */
+.fab-button {
+  position: fixed;
+  bottom: 100rpx;
+  right: 40rpx;
+  width: 120rpx;
+  height: 120rpx;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba(102, 126, 234, 0.4);
+  z-index: 999;
+  transition: all 0.3s;
+}
+
+.fab-button:active {
+  transform: scale(0.9);
+  box-shadow: 0 4rpx 16rpx rgba(102, 126, 234, 0.4);
+}
+
+.fab-icon {
+  font-size: 72rpx;
+  color: #fff;
+  font-weight: 300;
+  line-height: 1;
+}
+
+/* ========== 加载状态 ========== */
+.loading {
+  text-align: center;
+  padding: 40rpx;
+  color: #999;
+  font-size: 28rpx;
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 375px) {
+  .vehicle-text {
+    font-size: 32rpx;
+  }
+  
+  .page-header {
+    padding: 32rpx 24rpx;
+  }
+  
+  .header-title {
+    font-size: 36rpx;
+  }
+}

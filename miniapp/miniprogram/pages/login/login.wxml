@@ -1,0 +1,61 @@
+﻿<view class="login-container">
+  <view class="logo-area">
+    <view class="logo-icon">🔧</view>
+    <view class="app-title">维修服务系统</view>
+    <view class="app-desc">快速便捷的维修预约</view>
+  </view>
+
+  <view class="form-area">
+    <view class="input-group">
+      <view class="input-label">手机号</view>
+      <input
+        type="text"
+        placeholder="请输入手机号"
+        placeholder-class="placeholder"
+        value="{{phone}}"
+        bindinput="onPhoneInput"
+        maxlength="11"
+        class="input-field"
+      />
+    </view>
+
+    <view class="input-group">
+      <view class="input-label">密码</view>
+      <view class="password-input-wrapper">
+        <input
+          type="{{showPassword ? 'text' : 'password'}}"
+          placeholder="请输入密码（至少6位）"
+          placeholder-class="placeholder"
+          value="{{password}}"
+          bindinput="onPasswordInput"
+          class="input-field"
+        />
+        <view class="toggle-password" bindtap="togglePasswordVisibility">
+          {{showPassword ? '隐藏' : '显示'}}
+        </view>
+      </view>
+    </view>
+
+    <view class="forgot-password">
+      <text class="forgot-link" bindtap="handleForgotPassword">忘记密码？</text>
+    </view>
+
+    <button
+      type="primary"
+      class="login-btn"
+      bindtap="handleLogin"
+      disabled="{{loading}}"
+    >
+      {{loading ? '登录中...' : '登录'}}
+    </button>
+
+    <view class="register-link">
+      还没有账号？
+      <text class="link-text" bindtap="navigateToRegister">立即注册</text>
+    </view>
+  </view>
+
+  <view class="footer-tip">
+    登录即表示同意《服务条款》和《隐私政策》
+  </view>
+</view>

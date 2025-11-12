@@ -1,0 +1,218 @@
+<!-- 创建工单页面 -->
+<view class="container">
+  <!-- 页面内容 -->
+  <scroll-view scroll-y class="content" enable-flex>
+    
+    <!-- ========== 基本信息卡片 ========== -->
+    <view class="card">
+      <view class="card-header">
+        <text class="card-title">🚗 基本信息</text>
+      </view>
+      
+      <!-- 车辆信息 -->
+      <view class="form-group">
+        <label class="form-label">车辆信息</label>
+        <view class="input-wrapper">
+          <input 
+            type="text"
+            placeholder="如：2024年 宝马 X5"
+            data-field="vehicleInfo"
+            bindinput="onInput"
+            value="{{workOrder.vehicleInfo}}"
+            class="form-input"
+          />
+        </view>
+      </view>
+
+      <!-- 车主名字 -->
+      <view class="form-group">
+        <label class="form-label">车主名字</label>
+        <view class="input-wrapper">
+          <input 
+            type="text"
+            placeholder="如：张三"
+            data-field="customerName"
+            bindinput="onInput"
+            value="{{workOrder.customerName}}"
+            class="form-input"
+          />
+        </view>
+      </view>
+    </view>
+
+    <!-- ========== 维修项目卡片 ========== -->
+    <view class="card">
+      <view class="card-header">
+        <text class="card-title">🔧 维修项目</text>
+        <view class="badge">{{workItems.length}}</view>
+      </view>
+
+      <!-- 项目列表 -->
+      <view wx:if="{{workItems.length > 0}}" class="work-items-list">
+        <view wx:for="{{workItems}}" wx:key="id" class="work-item">
+          <view class="item-header">
+            <text class="item-name">{{item.itemName}}</text>
+            <text class="item-price">¥{{item.price}}</text>
+          </view>
+          <view wx:if="{{item.description}}" class="item-description">{{item.description}}</view>
+          <view class="item-footer">
+            <view class="item-delete" bindtap="deleteWorkItem" data-id="{{item.id}}">
+              <text>删除</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 费用统计 -->
+        <view class="cost-summary">
+          <text class="cost-label">项目总费用</text>
+          <text class="cost-value">¥{{totalCostFixed}}</text>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <view wx:else class="empty-state">
+        <text class="empty-icon">📋</text>
+        <text class="empty-text">还未添加维修项目</text>
+      </view>
+
+      <!-- 添加项目表单 -->
+      <view wx:if="{{!showWorkItemForm}}" class="add-btn-group">
+        <button class="btn btn-add" bindtap="showWorkItemForm">+ 添加维修项目</button>
+      </view>
+
+      <!-- 维修项目表单 -->
+      <view wx:if="{{showWorkItemForm}}" class="work-item-form">
+        <view class="form-group">
+          <label class="form-label">项目名称</label>
+          <input 
+            type="text"
+            placeholder="如：发动机检查"
+            data-field="itemName"
+            bindinput="onWorkItemInput"
+            value="{{newWorkItem.itemName}}"
+            class="form-input"
+          />
+        </view>
+
+        <view class="form-group">
+          <label class="form-label">项目描述 <text style="color: #999; font-size: 12px; font-weight: normal;">（可选）</text></label>
+          <textarea 
+            placeholder="描述项目详情"
+            data-field="description"
+            bindinput="onWorkItemInput"
+            value="{{newWorkItem.description}}"
+            class="form-textarea"
+            maxlength="100"
+          />
+        </view>
+
+        <view class="form-group">
+          <label class="form-label">项目金额</label>
+          <input 
+            type="number"
+            placeholder="如：500"
+            data-field="price"
+            bindinput="onWorkItemInput"
+            value="{{newWorkItem.price}}"
+            class="form-input"
+          />
+        </view>
+
+        <view class="form-actions">
+          <button class="btn btn-secondary" bindtap="closeWorkItemForm">取消</button>
+          <button class="btn btn-primary" bindtap="addWorkItem">添加</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- ========== 上传图片卡片 ========== -->
+    <view class="card">
+      <view class="card-header">
+        <text class="card-title">📷 相关图片</text>
+        <view class="badge">{{images.length}}/9</view>
+      </view>
+
+      <!-- 本地选择的图片 -->
+      <view wx:if="{{images.length > 0}}" class="images-grid">
+        <view wx:for="{{images}}" wx:key="id" class="image-item">
+          <image 
+            src="{{item.path}}"
+            mode="aspectFill"
+            class="image-preview"
+            bindtap="previewImage"
+            data-url="{{item.path}}"
+            data-temp="true"
+          />
+          <view class="image-delete" bindtap="deleteLocalImage" data-id="{{item.id}}">✕</view>
+        </view>
+      </view>
+
+      <!-- 添加图片按钮 -->
+      <view wx:if="{{images.length < 9}}" class="add-image-btn" bindtap="chooseImage">
+        <text class="add-image-icon">📷</text>
+        <text class="add-image-text">点击选择图片（最多{{9 - images.length}}张）</text>
+      </view>
+
+      <!-- 空状态 -->
+      <view wx:if="{{images.length === 0}}" class="empty-state">
+        <text class="empty-icon">🖼️</text>
+        <text class="empty-text">还未选择任何图片</text>
+      </view>
+    </view>
+
+    <!-- 底部提示 -->
+    <view class="tips-section">
+      <view class="tips-title">💡 提示</view>
+      <view class="tips-content">
+        <text>• 车辆信息和车主名字为必填项</text>
+        <text>• 至少添加一项维修项目</text>
+        <text>• 图片可选，支持 jpg、png 格式</text>
+        <text>• 保存后可继续上传或删除图片</text>
+      </view>
+    </view>
+
+  </scroll-view>
+
+  <!-- 页面底部操作栏 -->
+  <view class="footer-actions">
+    <button class="btn btn-secondary" bindtap="cancelCreate">取消</button>
+    <button class="btn btn-primary btn-save" bindtap="showSaveConfirm">💾 保存工单</button>
+  </view>
+
+  <!-- 保存确认弹窗 -->
+  <view wx:if="{{showConfirm}}" class="modal-overlay" bindtap="cancelConfirm">
+    <view class="modal-content" catchtap="">
+      <view class="modal-header">
+        <text class="modal-title">✓ 确认保存</text>
+      </view>
+      
+      <view class="modal-body">
+        <view class="confirm-item">
+          <text class="confirm-label">车辆信息</text>
+          <text class="confirm-value">{{workOrder.vehicleInfo}}</text>
+        </view>
+        <view class="confirm-item">
+          <text class="confirm-label">车主名字</text>
+          <text class="confirm-value">{{workOrder.customerName}}</text>
+        </view>
+        <view class="confirm-item">
+          <text class="confirm-label">维修项目</text>
+          <text class="confirm-value">{{workItems.length}} 项</text>
+        </view>
+        <view class="confirm-item">
+          <text class="confirm-label">项目总费用</text>
+          <text class="confirm-value highlight">¥{{totalCostFixed}}</text>
+        </view>
+        <view class="confirm-item">
+          <text class="confirm-label">上传图片</text>
+          <text class="confirm-value">{{images.length}} 张</text>
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <button class="btn btn-secondary" bindtap="cancelConfirm">取消</button>
+        <button class="btn btn-primary" bindtap="confirmSave">确认保存</button>
+      </view>
+    </view>
+  </view>
+</view>

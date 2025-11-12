@@ -1,0 +1,163 @@
+﻿<view class="detail-container">
+  <!-- 顶部工单状态卡片 -->
+  <view class="status-card">
+    <view class="status-header">
+      <view class="status-badge" style="background: {{getStatusColor(workOrder.status)}}">
+        {{getStatusText(workOrder.status)}}
+      </view>
+      <text class="order-number">#{{orderId}}</text>
+    </view>
+    
+    <!-- 车辆信息 - 黑色加粗大字 -->
+    <view class="vehicle-info-main">
+      <text class="vehicle-text">{{workOrder.vehicleInfo || '未填写车辆信息'}}</text>
+    </view>
+  </view>
+
+  <!-- 已分配员工卡片 - 只在有员工时显示 -->
+  <view class="workers-card" wx:if="{{assignedWorkers.length > 0}}">
+    <view class="card-title">
+      <text class="title-icon">👷</text>
+      <text class="title-text">已分配员工</text>
+      <view class="count-badge">{{assignedWorkers.length}}</view>
+    </view>
+
+    <view class="workers-grid">
+      <view class="worker-item" wx:for="{{assignedWorkers}}" wx:key="id">
+        <view class="worker-avatar-small">
+          <text class="avatar-text-small">{{item.username.substring(0, 1)}}</text>
+        </view>
+        <view class="worker-info-detail">
+          <text class="worker-name-detail">{{item.username}}</text>
+          <text class="worker-phone-detail" wx:if="{{item.phone}}">{{item.phone}}</text>
+        </view>
+        <view class="worker-role-tag" wx:if="{{item.workerRole}}">
+          {{item.workerRole}}
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 工单详情卡片 -->
+  <view class="info-card">
+    <view class="card-title">
+      <text class="title-icon">📋</text>
+      <text class="title-text">工单信息</text>
+    </view>
+
+    <view class="info-row" wx:if="{{workOrder.description}}">
+      <text class="info-label">问题描述</text>
+      <text class="info-value">{{workOrder.description}}</text>
+    </view>
+
+    <view class="info-row">
+      <text class="info-label">费用</text>
+      <text class="info-value price">¥{{totalCostFixed || 0}}</text>
+    </view>
+
+    <view class="info-row" wx:if="{{workOrder.actualCost > 0}}">
+      <text class="info-label">实际费用</text>
+      <text class="info-value price highlight">¥{{workOrder.actualCost}}</text>
+    </view>
+
+    <view class="info-row">
+      <text class="info-label">创建时间</text>
+      <text class="info-value time">{{workOrder.createdAt}}</text>
+    </view>
+
+    <view class="info-row">
+      <text class="info-label">更新时间</text>
+      <text class="info-value time">{{workOrder.updatedAt}}</text>
+    </view>
+  </view>
+
+  <!-- 维修项目卡片 -->
+  <view class="work-items-card" wx:if="{{workItems.length > 0}}">
+    <view class="card-title">
+      <text class="title-icon">🔧</text>
+      <text class="title-text">维修项目</text>
+      <view class="count-badge">{{workItems.length}}</view>
+    </view>
+
+    <view class="work-items-list">
+      <view class="work-item" wx:for="{{workItems}}" wx:key="id">
+        <view class="item-header">
+          <view class="item-name-row">
+            <text class="item-name">{{item.itemName}}</text>
+            <view class="item-status-badge" style="background: {{getItemStatusColor(item.status)}}">
+              {{getItemStatusText(item.status)}}
+            </view>
+          </view>
+          <text class="item-price">¥{{item.price}}</text>
+        </view>
+        
+        <view class="item-description" wx:if="{{item.description}}">
+          <text class="desc-label">说明:</text>
+          <text class="desc-text">{{item.description}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 维修项目总费用 -->
+    <view class="items-summary">
+      <text class="summary-label">项目总费用</text>
+      <text class="summary-price">¥{{totalCostFixed}}</text>
+    </view>
+  </view>
+
+  <!-- 图片展示区域 -->
+  <view class="images-card" wx:if="{{images.length > 0}}">
+    <view class="card-title">
+      <text class="title-icon">📷</text>
+      <text class="title-text">相关图片</text>
+      <view class="count-badge">{{images.length}}</view>
+    </view>
+    <view class="image-grid">
+      <view class="image-item" wx:for="{{images}}" wx:key="id" bindtap="previewImage" data-url="{{item.url}}">
+        <image class="image" src="{{item.url}}" mode="aspectFill" />
+      </view>
+    </view>
+  </view>
+
+  <!-- ✅ 操作按钮 - 管理员编辑 -->
+  <view class="action-buttons" wx:if="{{canEdit}}">
+    <button class="btn-edit" bindtap="showEditConfirm">
+      <text class="btn-icon">✏️</text>
+      <text>编辑工单</text>
+    </button>
+  </view>
+
+  <!-- ✅ 操作按钮 - 员工完成 -->
+  <view class="action-buttons" wx:if="{{canComplete}}">
+    <button class="btn-complete" bindtap="showCompleteConfirm">
+      <text class="btn-icon">✅</text>
+      <text>完成工单</text>
+    </button>
+  </view>
+
+  <!-- ✅ 编辑确认弹窗 -->
+  <view class="modal-mask" wx:if="{{showConfirm}}" bindtap="cancelConfirm">
+    <view class="modal-dialog" catchtap="">
+      <view class="modal-icon">✏️</view>
+      <view class="modal-title">确认编辑工单？</view>
+      <view class="modal-content">进入编辑页面后可修改工单信息、项目和图片</view>
+      <view class="modal-buttons">
+        <button class="modal-btn cancel" bindtap="cancelConfirm">取消</button>
+        <button class="modal-btn confirm" bindtap="confirmEdit">确定</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- ✅ 完成工单确认弹窗 -->
+  <view class="modal-mask" wx:if="{{showCompleteConfirm}}" bindtap="cancelComplete">
+    <view class="modal-dialog" catchtap="">
+      <view class="modal-icon">✅</view>
+      <view class="modal-title">确认完成工单?</view>
+      <view class="modal-content">确认后工单状态将变更为"已完成",请确保所有维修项目已完成</view>
+      <view class="modal-buttons">
+        <button class="modal-btn cancel" bindtap="cancelComplete">取消</button>
+        <button class="modal-btn confirm" bindtap="confirmComplete">确定</button>
+      </view>
+    </view>
+  </view>
+</view>

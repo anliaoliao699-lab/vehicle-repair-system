@@ -1,0 +1,126 @@
+﻿<!-- ✅ 添加 WXS 模块来处理状态颜色和文本 -->
+<wxs module="utils">
+  var getStatusColor = function(status) {
+    var colors = {
+      'new': '#0066ff',
+      'assigned': '#ff9500',
+      'in_progress': '#ff6b6b',
+      'completed': '#07c160',
+      'accepted': '#13c2c2',
+      'paid': '#9254de',
+      'closed': '#999'
+    };
+    return colors[status] || '#999';
+  };
+  
+  var getStatusText = function(status) {
+    var texts = {
+      'new': '新建',
+      'assigned': '已分配',
+      'in_progress': '进行中',
+      'completed': '已完成',
+      'accepted': '已接受',
+      'paid': '已支付',
+      'closed': '已关闭'
+    };
+    return texts[status] || '未知';
+  };
+  
+  module.exports = {
+    getStatusColor: getStatusColor,
+    getStatusText: getStatusText
+  };
+</wxs>
+
+<view class="work-order-list">
+  <!-- 顶部标题栏 -->
+  <view class="page-header">
+    <text class="header-title">{{userRole === 'worker' ? '我的工单' : '工单列表'}}</text>
+    <view class="header-count">{{filteredOrders.length}}个工单</view>
+  </view>
+
+  <!-- 搜索栏 -->
+  <view class="search-bar">
+    <view class="search-container">
+      <text class="search-icon">🔍</text>
+      <input
+        type="text"
+        placeholder="搜索车辆信息、描述"
+        value="{{searchText}}"
+        bindinput="onSearchInput"
+        class="search-input"
+      />
+    </view>
+  </view>
+
+  <!-- 状态筛选 -->
+  <view class="status-filter">
+    <picker
+      range="{{statusOptions}}"
+      range-key="label"
+      value="{{0}}"
+      bindchange="onStatusChange"
+      class="status-picker"
+    >
+      <view class="picker-container">
+        <text class="picker-label">状态筛选:</text>
+        <text class="picker-value">{{utils.getStatusText(status)}}</text>
+        <text class="picker-arrow">▼</text>
+      </view>
+    </picker>
+  </view>
+
+  <!-- 工单列表 -->
+  <view class="order-list">
+    <view wx:if="{{filteredOrders.length > 0}}">
+      <view
+        wx:for="{{filteredOrders}}"
+        wx:key="id"
+        class="order-card"
+        bindtap="viewOrderDetail"
+        data-id="{{item.id}}"
+      >
+        <!-- ✅ 右上角状态徽章 - 使用 WXS 方法 -->
+        <view class="status-badge" style="background: {{utils.getStatusColor(item.status)}}">
+          {{utils.getStatusText(item.status)}}
+        </view>
+
+        <!-- ✅ 车辆信息作为头部 - 大字加粗 -->
+        <view class="vehicle-header">
+          <text class="vehicle-icon">🚗</text>
+          <text class="vehicle-text">{{item.vehicleInfo || '未填写车辆信息'}}</text>
+        </view>
+
+        <!-- 工单描述 -->
+        <view class="order-description" wx:if="{{item.description}}">
+          <text class="desc-label">问题:</text>
+          <text class="desc-text">{{item.description}}</text>
+        </view>
+
+        <!-- 工单底部信息 -->
+        <view class="order-footer">
+          <view class="footer-item">
+            <text class="footer-label">费用</text>
+            <text class="footer-value price">¥{{item.actualCost || 0}}</text>
+          </view>
+          <view class="footer-item">
+            <text class="footer-label">创建时间</text>
+            <text class="footer-value time">{{item.createdAt || ''}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view wx:else class="empty-state">
+      <view class="empty-icon">📋</view>
+      <view class="empty-text">{{userRole === 'worker' ? '暂无分配给您的工单' : '暂无工单'}}</view>
+      <view class="empty-hint">{{userRole === 'worker' ? '等待管理员分配工单' : '点击右下角按钮创建工单'}}</view>
+    </view>
+  </view>
+
+  <!-- 创建工单按钮 - 只对管理员显示 -->
+  <view class="fab-button" bindtap="navigateToCreate" wx:if="{{userRole === 'admin'}}">
+    <text class="fab-icon">+</text>
+  </view>
+</view>

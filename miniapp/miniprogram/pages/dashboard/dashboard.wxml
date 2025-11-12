@@ -1,0 +1,64 @@
+﻿<view class="dashboard">
+  <view class="user-card">
+    <view class="user-info">
+      <view class="avatar">{{user.name}}</view>
+      <view class="info">
+        <view class="name">{{user.name}}</view>
+
+      </view>
+    </view>
+    <view class="logout-btn" bindtap="handleLogout">
+      <text>退出</text>
+    </view>
+  </view>
+
+  <view class="stats-container">
+    <view class="stat-card">
+      <view class="stat-value">{{stats.totalOrders}}</view>
+      <view class="stat-label">总工单</view>
+    </view>
+    <view class="stat-card">
+      <view class="stat-value">{{stats.pendingOrders}}</view>
+      <view class="stat-label">待处理</view>
+    </view>
+    <view class="stat-card">
+      <view class="stat-value">{{stats.completedOrders}}</view>
+      <view class="stat-label">已完成</view>
+    </view>
+  </view>
+
+  <view class="quick-actions">
+    <view class="section-title">快捷操作</view>
+    <view class="action-grid">
+      <view class="action-item" bindtap="navigateToCreateOrder">
+        <view class="action-text">创建工单</view>
+      </view>
+      <view class="action-item" bindtap="navigateToOrders">
+        <view class="action-text">工单列表</view>
+      </view>
+      <view class="action-item" bindtap="navigateToVehicles">
+        <view class="action-text">车辆管理</view>
+      </view>
+      <view class="action-item" bindtap="navigateToProfile">
+        <view class="action-text">个人中心</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="recent-orders">
+    <view class="section-title">最近工单</view>
+    <view wx:if="{{recentOrders.length > 0}}">
+      <view wx:for="{{recentOrders}}" wx:key="id" class="order-item" bindtap="viewOrderDetail" data-id="{{item.id}}">
+        <view class="order-header">
+          <view class="order-no">{{item.orderNo}}</view>
+          <view class="order-status">{{item.statusText}}</view>
+        </view>
+        <view class="order-vehicle">{{item.vehicleInfo}}</view>
+        <view class="order-description">{{item.description}}</view>
+      </view>
+    </view>
+    <view wx:else class="empty-state">
+      <view class="empty-text">暂无工单</view>
+    </view>
+  </view>
+</view>

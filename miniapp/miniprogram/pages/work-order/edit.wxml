@@ -1,0 +1,333 @@
+<view class="edit-container">
+  <!-- 页面头部 -->
+  <view class="page-header">
+    <text class="header-icon">✏️</text>
+    <text class="header-title">编辑工单</text>
+  </view>
+
+  <!-- 基本信息表单 -->
+  <view class="form-card">
+    <view class="card-title">
+      <text class="title-icon">📋</text>
+      <text class="title-text">基本信息</text>
+    </view>
+
+    <!-- 车辆信息 -->
+    <view class="form-group">
+      <view class="label-row">
+        <text class="label required">车辆信息</text>
+      </view>
+      <input 
+        class="input full-width" 
+        placeholder="请输入车牌号或车辆型号" 
+        value="{{workOrder.vehicleInfo}}" 
+        bindinput="onInput" 
+        data-field="vehicleInfo"
+        placeholder-style="color: #ccc;"
+      />
+    </view>
+
+    <!-- 车主 -->
+    <view class="form-group">
+      <view class="label-row">
+        <text class="label required">车主</text>
+        <text class="char-count">{{workOrder.description ? workOrder.description.length : 0}}/500</text>
+      </view>
+      <textarea 
+        class="textarea" 
+        placeholder="请填写车主名字" 
+        value="{{workOrder.description}}" 
+        bindinput="onInput" 
+        data-field="description"
+        maxlength="500"
+        auto-height
+        show-confirm-bar="{{false}}"
+        placeholder-style="color: #ccc;"
+      ></textarea>
+    </view>
+  </view>
+
+  <!-- 维修项目管理卡片 -->
+  <view class="work-items-card">
+    <view class="card-title">
+      <text class="title-icon">🔧</text>
+      <text class="title-text">维修项目</text>
+      <text class="count-badge">{{workItems.length}}</text>
+    </view>
+
+    <!-- 项目列表 -->
+    <view class="work-items-list" wx:if="{{workItems.length > 0}}">
+      <view class="work-item" wx:for="{{workItems}}" wx:key="id">
+        <view class="item-header">
+          <view class="item-info">
+            <text class="item-name">{{item.itemName}}</text>
+            <text class="item-description" wx:if="{{item.description}}">{{item.description}}</text>
+          </view>
+          <view class="item-price">¥{{item.price}}</view>
+        </view>
+        <view class="item-actions">
+          <button class="item-delete-btn" bindtap="deleteWorkItem" data-id="{{item.id}}">删除</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- 项目总费用显示 -->
+    <view class="items-summary">
+      <text class="summary-label">项目总费用：</text>
+      <text class="summary-price">¥{{totalCost}}</text>
+    </view>
+
+    <!-- 添加项目按钮 -->
+    <button class="btn-add-item" bindtap="showWorkItemForm">
+      <text class="btn-icon">+</text>
+      <text>添加维修项目</text>
+    </button>
+  </view>
+
+  <!-- 图片管理 -->
+  <view class="images-card">
+    <view class="card-title">
+      <text class="title-icon">📷</text>
+      <text class="title-text">相关图片</text>
+      <text class="image-count">({{images.length}}/9)</text>
+    </view>
+
+    <view class="image-grid">
+      <!-- 已上传的图片 -->
+      <view class="image-item" wx:for="{{images}}" wx:key="id">
+        <image class="image" src="{{item.url}}" mode="aspectFill" bindtap="previewImage" data-url="{{item.url}}" />
+        <view class="delete-btn" bindtap="deleteImage" data-id="{{item.id}}">
+          <text class="delete-icon">×</text>
+        </view>
+      </view>
+
+      <!-- 上传按钮 -->
+      <view class="upload-btn" bindtap="chooseImage" wx:if="{{images.length < 9}}">
+        <text class="upload-icon">+</text>
+        <text class="upload-text">添加图片</text>
+      </view>
+    </view>
+
+    <view class="upload-tip">支持上传最多9张图片，点击图片可预览</view>
+  </view>
+
+  <!-- ✅ 美化的派工管理卡片（仅管理员可见） -->
+  <view class="assign-card" wx:if="{{userRole === 'admin'}}">
+    <view class="card-title">
+      <view class="title-left">
+        <text class="title-icon">👥</text>
+        <text class="title-text">工作团队</text>
+      </view>
+      <text class="count-badge-new">{{assignedWorkers.length}}人</text>
+    </view>
+
+    <!-- 已分配的员工列表 -->
+    <view class="assigned-workers-grid" wx:if="{{assignedWorkers.length > 0}}">
+      <view class="worker-card" wx:for="{{assignedWorkers}}" wx:key="id">
+        <view class="worker-avatar">
+          <text class="avatar-text">{{item.username.substr(0,1)}}</text>
+        </view>
+        <view class="worker-details">
+          <text class="worker-name-main">{{item.username}}</text>
+          <text class="worker-role-badge">{{item.workerRole || '未指定'}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 无派工提示 -->
+    <view class="empty-assign-new" wx:else>
+      <text class="empty-icon-new">👤</text>
+      <text class="empty-text-new">还未分配工作人员</text>
+      <text class="empty-hint">点击下方按钮进行分配</text>
+    </view>
+
+    <!-- 分配按钮 -->
+    <button class="btn-assign-new" bindtap="openAssignModal">
+      <text class="btn-icon">{{assignedWorkers.length > 0 ? '✏️' : '➕'}}</text>
+      <text>{{assignedWorkers.length > 0 ? '修改分配' : '分配员工'}}</text>
+    </button>
+  </view>
+
+  <!-- ✅ 美化的派工弹窗 -->
+  <view class="modal-mask-new {{showAssignModal ? 'show' : ''}}" wx:if="{{showAssignModal}}" bindtap="closeAssignModal" catchtouchmove="preventTouchMove">
+    <view class="modal-dialog-new" catchtap="doNothing">
+      <!-- 弹窗头部 -->
+      <view class="modal-header-new">
+        <view class="header-left">
+          <text class="header-icon-new">👥</text>
+          <view class="header-text-group">
+            <text class="header-title-new">选择工作人员</text>
+            <text class="header-subtitle">为工单分配合适的员工</text>
+          </view>
+        </view>
+        <view class="close-btn" bindtap="closeAssignModal">
+          <text class="close-icon">✕</text>
+        </view>
+      </view>
+
+      <!-- 弹窗主体 -->
+      <scroll-view class="modal-body-new" scroll-y="true">
+        <view class="workers-grid" wx:if="{{availableWorkers.length > 0}}">
+          <view 
+            class="worker-option-new {{selectedWorkers[item.id] ? 'selected' : ''}}" 
+            wx:for="{{availableWorkers}}" 
+            wx:key="id"
+            bindtap="toggleWorker"
+            data-id="{{item.id}}"
+          >
+            <!-- 选中标识 -->
+            <view class="select-indicator {{selectedWorkers[item.id] ? 'active' : ''}}">
+              <text class="check-icon" wx:if="{{selectedWorkers[item.id]}}">✓</text>
+            </view>
+
+            <!-- 员工头像 -->
+            <view class="worker-avatar-large">
+              <text class="avatar-text-large">{{item.username.substr(0,1)}}</text>
+            </view>
+
+            <!-- 员工信息 -->
+            <view class="worker-info-new">
+              <text class="worker-name-new">{{item.username}}</text>
+              <text class="worker-phone-new">{{item.phone}}</text>
+            </view>
+
+            <!-- 工种选择 -->
+            <view class="role-select-area" wx:if="{{selectedWorkers[item.id]}}" catchtap="doNothing">
+              <text class="role-label-new">工种</text>
+              <picker 
+                class="role-picker" 
+                mode="selector" 
+                range="{{roleOptions}}"
+                value="{{0}}"
+                data-worker-id="{{item.id}}"
+                bindchange="selectRole"
+              >
+                <view class="picker-display">
+                  <text class="picker-text">{{selectedRoles[item.id] || '请选择'}}</text>
+                  <text class="picker-arrow">▼</text>
+                </view>
+              </picker>
+            </view>
+          </view>
+        </view>
+
+        <!-- 空状态 -->
+        <view wx:else class="empty-workers-new">
+          <text class="empty-icon-large">👥</text>
+          <text class="empty-text-large">暂无可用员工</text>
+          <text class="empty-hint-text">请先添加员工</text>
+        </view>
+      </scroll-view>
+
+      <!-- 弹窗底部 -->
+      <view class="modal-footer-new">
+        <view class="selected-info" wx:if="{{selectedWorkerCount > 0}}">
+          <text class="selected-text">已选择 {{selectedWorkerCount}} 人</text>
+        </view>
+        <view class="footer-buttons">
+          <button class="modal-btn-new cancel-new" bindtap="closeAssignModal">取消</button>
+          <button 
+            class="modal-btn-new confirm-new" 
+            bindtap="confirmAssign" 
+            disabled="{{assignLoading}}"
+            loading="{{assignLoading}}"
+          >
+            确认分配
+          </button>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作按钮 -->
+  <view class="action-buttons">
+    <button class="btn btn-cancel" bindtap="cancelEdit">
+      <text>取消</text>
+    </button>
+    <button class="btn btn-save" bindtap="showSaveConfirm">
+      <text class="btn-icon">💾</text>
+      <text>保存修改</text>
+    </button>
+  </view>
+
+  <!-- 保存确认弹窗 -->
+  <view class="modal-mask" wx:if="{{showConfirm}}" bindtap="cancelConfirm">
+    <view class="modal-dialog" catchtap="">
+      <view class="modal-icon">💾</view>
+      <view class="modal-title">确认保存修改？</view>
+      <view class="modal-content">
+        <view class="confirm-item">
+          <text class="confirm-label">车辆信息</text>
+          <text class="confirm-value">{{workOrder.vehicleInfo || '未填写'}}</text>
+        </view>
+        <view class="confirm-item">
+          <text class="confirm-label">问题描述</text>
+          <text class="confirm-value" style="max-width: 300rpx; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{workOrder.description || '未填写'}}</text>
+        </view>
+        <view class="confirm-item">
+          <text class="confirm-label">项目总费用</text>
+          <text class="confirm-value price">¥{{totalCost}}</text>
+        </view>
+      </view>
+      <view class="modal-buttons">
+        <button class="modal-btn cancel" bindtap="cancelConfirm">取消</button>
+        <button class="modal-btn confirm" bindtap="confirmSave">确认保存</button>
+      </view>
+    </view>
+  </view>
+
+  <!-- 添加维修项目弹窗 -->
+  <view class="modal-mask" wx:if="{{showWorkItemForm}}">
+    <view class="modal-dialog work-item-form" bindtap="doNothing">
+      <view class="modal-title">添加维修项目</view>
+      
+      <view class="form-group">
+        <text class="label required">项目名称</text>
+        <input 
+          class="input full-width"
+          placeholder="如：机油更换、轮胎维修"
+          value="{{newWorkItem.itemName}}"
+          bindinput="onWorkItemInput"
+          data-field="itemName"
+          placeholder-style="color: #ccc;"
+        />
+      </view>
+
+      <view class="form-group">
+        <text class="label">描述</text>
+        <textarea
+          class="textarea"
+          placeholder="项目描述（可选）"
+          value="{{newWorkItem.description}}"
+          bindinput="onWorkItemInput"
+          data-field="description"
+          maxlength="200"
+          placeholder-style="color: #ccc;"
+        ></textarea>
+      </view>
+
+      <view class="form-group">
+        <text class="label required">费用</text>
+        <view class="input-with-icon">
+          <text class="currency-symbol">¥</text>
+          <input
+            class="input cost-input"
+            type="digit"
+            placeholder="请输入金额"
+            value="{{newWorkItem.price}}"
+            bindinput="onWorkItemInput"
+            data-field="price"
+            placeholder-style="color: #ccc;"
+          />
+        </view>
+      </view>
+
+      <view class="modal-buttons">
+        <button class="modal-btn cancel" bindtap="closeWorkItemForm">取消</button>
+        <button class="modal-btn confirm" bindtap="addWorkItem">添加</button>
+      </view>
+    </view>
+  </view>
+</view>
+
+

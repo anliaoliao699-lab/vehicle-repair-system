@@ -1,0 +1,623 @@
+page {
+  background: #f5f5f5;
+  min-height: 100vh;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  background: #f5f5f5;
+}
+
+/* ========== 内容区域 ========== */
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0 80px 0;  /* ✅ 优化：减少顶部边距 */
+  box-sizing: border-box;
+}
+
+/* ========== 卡片样式 ========== */
+.card {
+  background: white;
+  margin: 8px 12px;        /* ✅ 优化：调整为 8px 12px */
+  border-radius: 16px;     /* ✅ 优化：减少圆角半径 */
+  padding: 20px;           /* ✅ 优化：减少内边距 */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);  /* ✅ 优化：减弱阴影 */
+  transition: all 0.3s ease;
+}
+
+.card:active {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;     /* ✅ 优化：减少间距 */
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;  /* ✅ 优化：减弱边框 */
+}
+
+.card-title {
+  font-size: 16px;         /* ✅ 优化：减少字体大小 */
+  font-weight: 700;
+  color: #2c3e50;
+  letter-spacing: 0.3px;
+}
+
+.badge {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+}
+
+/* ========== 表单样式 ========== */
+.form-group {
+  margin-bottom: 16px;     /* ✅ 优化：调整间距 */
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group:last-child {
+  margin-bottom: 0;
+}
+
+.form-label {
+  font-size: 14px;         /* ✅ 优化：减少字体大小 */
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 8px;      /* ✅ 优化：减少间距 */
+  display: flex;
+  align-items: center;
+}
+
+.form-label::before {
+  content: '*';
+  color: #ff6b6b;
+  margin-right: 6px;
+  font-weight: 700;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+.form-input {
+  width: 100%;
+  padding: 12px 14px;      /* ✅ 优化：减少内边距 */
+  border: 1px solid #e8eaed;  /* ✅ 优化：减弱边框 */
+  border-radius: 8px;
+  font-size: 14px;         /* ✅ 优化：减少字体大小 */
+  background-color: #fafbfc;
+  color: #2c3e50;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  line-height: 1.4;
+  font-family: inherit;
+}
+
+.form-input::placeholder {
+  color: #bdbdbd;
+}
+
+.form-input:focus {
+  border-color: #667eea;
+  background-color: white;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.08);  /* ✅ 优化：减弱阴影 */
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 12px 14px;      /* ✅ 优化：减少内边距 */
+  border: 1px solid #e8eaed;  /* ✅ 优化：减弱边框 */
+  border-radius: 8px;
+  font-size: 14px;         /* ✅ 优化：减少字体大小 */
+  background-color: #fafbfc;
+  color: #2c3e50;
+  min-height: 80px;
+  max-height: 100px;
+  box-sizing: border-box;
+  transition: all 0.3s ease;
+  resize: vertical;
+  line-height: 1.5;
+  font-family: inherit;
+}
+
+.form-textarea::placeholder {
+  color: #bdbdbd;
+}
+
+.form-textarea:focus {
+  border-color: #667eea;
+  background-color: white;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.08);  /* ✅ 优化：减弱阴影 */
+}
+
+.char-count {
+  font-size: 12px;
+  color: #999;
+  text-align: right;
+  margin-top: 6px;
+}
+
+/* ========== 维修项目样式 ========== */
+.work-items-list {
+  margin-bottom: 16px;
+}
+
+.work-item {
+  background: #f8f9fb;     /* ✅ 优化：减弱背景色 */
+  padding: 12px 14px;      /* ✅ 优化：减少内边距 */
+  border-radius: 8px;
+  margin-bottom: 8px;      /* ✅ 优化：减少间距 */
+  border-left: 3px solid #667eea;  /* ✅ 优化：减少边框宽度 */
+  transition: all 0.2s ease;
+}
+
+.work-item:active {
+  transform: translateX(2px);
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;      /* ✅ 优化：减少间距 */
+}
+
+.item-name {
+  font-size: 14px;         /* ✅ 优化：减少字体大小 */
+  font-weight: 600;
+  color: #2c3e50;
+  flex: 1;
+}
+
+.item-price {
+  font-size: 15px;         /* ✅ 优化：减少字体大小 */
+  font-weight: 700;
+  color: #667eea;
+  margin-left: 12px;
+}
+
+.item-description {
+  font-size: 12px;         /* ✅ 优化：减少字体大小 */
+  color: #7f8c8d;
+  margin-bottom: 8px;      /* ✅ 优化：减少间距 */
+  line-height: 1.5;
+}
+
+.item-footer {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.item-delete {
+  color: #ff6b6b;
+  font-size: 12px;         /* ✅ 优化：减少字体大小 */
+  padding: 4px 8px;        /* ✅ 优化：减少内边距 */
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.item-delete:active {
+  transform: scale(0.95);
+}
+
+.cost-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 14px;      /* ✅ 优化：减少内边距 */
+  background: #f5f7ff;
+  border-radius: 8px;
+  margin-top: 12px;        /* ✅ 优化：减少间距 */
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.cost-label {
+  font-size: 14px;         /* ✅ 优化：减少字体大小 */
+  color: #555;
+  font-weight: 600;
+}
+
+.cost-value {
+  font-size: 18px;         /* ✅ 优化：减少字体大小 */
+  font-weight: 700;
+  color: #667eea;
+}
+
+/* ========== 图片样式 ========== */
+.images-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;               /* ✅ 优化：减少间距 */
+  margin-bottom: 12px;     /* ✅ 优化：减少间距 */
+}
+
+.image-item {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 8px;
+  overflow: hidden;
+  background-color: #f0f0f0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06);  /* ✅ 优化：减弱阴影 */
+  transition: all 0.2s ease;
+}
+
+.image-item:active {
+  transform: scale(0.95);
+}
+
+.image-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.image-delete {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  width: 26px;             /* ✅ 优化：减少大小 */
+  height: 26px;            /* ✅ 优化：减少大小 */
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;         /* ✅ 优化：减少字体大小 */
+  font-weight: bold;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+}
+
+.image-delete:active {
+  transform: scale(0.9);
+}
+
+.add-image-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 16px;      /* ✅ 优化：减少内边距 */
+  border: 2px dashed #d0d5dd;
+  border-radius: 8px;
+  background-color: #fafbfc;
+  transition: all 0.3s ease;
+}
+
+.add-image-btn:active {
+  border-color: #667eea;
+  background-color: #f0f4ff;
+}
+
+.add-image-icon {
+  font-size: 36px;         /* ✅ 优化：减少字体大小 */
+  margin-bottom: 10px;     /* ✅ 优化：减少间距 */
+}
+
+.add-image-text {
+  font-size: 13px;         /* ✅ 优化：减少字体大小 */
+  color: #bdbdbd;
+  font-weight: 500;
+}
+
+/* ========== 空状态样式 ========== */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px 16px;      /* ✅ 优化：减少内边距 */
+  color: #bdbdbd;
+}
+
+.empty-icon {
+  font-size: 48px;         /* ✅ 优化：减少字体大小 */
+  margin-bottom: 10px;     /* ✅ 优化：减少间距 */
+  opacity: 0.6;
+}
+
+.empty-text {
+  font-size: 13px;         /* ✅ 优化：减少字体大小 */
+  color: #bdbdbd;
+  font-weight: 500;
+}
+
+/* ========== 按钮样式 ========== */
+.add-btn-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;        /* ✅ 优化：减少间距 */
+}
+
+.btn {
+  padding: 12px 18px;      /* ✅ 优化：减少内边距 */
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;         /* ✅ 优化：减少字体大小 */
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  transition: all 0.3s ease;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.25);  /* ✅ 优化：减弱阴影 */
+}
+
+.btn-primary:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 6px rgba(102, 126, 234, 0.15);
+}
+
+.btn-secondary {
+  background-color: #f0f0f0;
+  color: #555;
+  border: 1px solid #e0e0e0;
+}
+
+.btn-secondary:active {
+  background-color: #e5e5e5;
+  transform: scale(0.98);
+}
+
+.btn-add {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  width: 100%;
+  margin-top: 12px;        /* ✅ 优化：调整间距 */
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.2);  /* ✅ 优化：减弱阴影 */
+}
+
+.btn-add:active {
+  transform: scale(0.98);
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;        /* ✅ 优化：减少间距 */
+}
+
+.form-actions .btn {
+  flex: 1;
+  padding: 12px;
+  font-size: 14px;         /* ✅ 优化：减少字体大小 */
+}
+
+/* ========== 工作项表单 ========== */
+.work-item-form {
+  background: #f8f9fb;     /* ✅ 优化：减弱背景色 */
+  padding: 14px;           /* ✅ 优化：减少内边距 */
+  border-radius: 8px;
+  margin-top: 12px;        /* ✅ 优化：减少间距 */
+  border: 1px solid rgba(102, 126, 234, 0.1);
+}
+
+.work-item-form .form-group {
+  margin-bottom: 14px;     /* ✅ 优化：减少间距 */
+}
+
+.work-item-form .form-group:last-child {
+  margin-bottom: 0;
+}
+
+/* ========== 提示部分样式 ========== */
+.tips-section {
+  margin: 16px 12px;       /* ✅ 优化：调整间距 */
+  padding: 14px;           /* ✅ 优化：减少内边距 */
+  background: #f1f8e9;
+  border-radius: 8px;
+  border-left: 3px solid #4caf50;  /* ✅ 优化：减少边框宽度 */
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.08);  /* ✅ 优化：减弱阴影 */
+}
+
+.tips-title {
+  font-size: 14px;         /* ✅ 优化：减少字体大小 */
+  font-weight: 600;
+  color: #2e7d32;
+  margin-bottom: 8px;      /* ✅ 优化：减少间距 */
+}
+
+.tips-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;                /* ✅ 优化：减少间距 */
+}
+
+.tips-content text {
+  font-size: 12px;         /* ✅ 优化：减少字体大小 */
+  color: #558b2f;
+  line-height: 1.6;
+}
+
+/* ========== 底部操作栏 ========== */
+.footer-actions {
+  display: flex;
+  gap: 12px;
+  padding: 10px 12px;      /* ✅ 优化：减少内边距 */
+  background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
+  border-top: 1px solid #e8eaed;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.06);  /* ✅ 优化：减弱阴影 */
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  box-sizing: border-box;
+}
+
+.footer-actions .btn {
+  flex: 1;
+  padding: 11px;           /* ✅ 优化：减少内边距 */
+  font-size: 14px;         /* ✅ 优化：减少字体大小 */
+  font-weight: 600;
+}
+
+.btn-save {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 3px 10px rgba(102, 126, 234, 0.25);  /* ✅ 优化：减弱阴影 */
+}
+
+/* ========== 模态框样式 ========== */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 20px;     /* ✅ 优化：减少圆角 */
+  width: 85%;
+  max-width: 360px;        /* ✅ 优化：减少最大宽度 */
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.2);  /* ✅ 优化：减弱阴影 */
+  overflow: hidden;
+  animation: slideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  padding: 16px;           /* ✅ 优化：减少内边距 */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-bottom: none;
+}
+
+.modal-title {
+  font-size: 16px;         /* ✅ 优化：减少字体大小 */
+  font-weight: 700;
+  color: white;
+  letter-spacing: 0.3px;
+}
+
+.modal-body {
+  padding: 16px;           /* ✅ 优化：减少内边距 */
+}
+
+.confirm-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;         /* ✅ 优化：减少内边距 */
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.confirm-item:last-child {
+  border-bottom: none;
+}
+
+.confirm-label {
+  font-size: 13px;         /* ✅ 优化：减少字体大小 */
+  color: #7f8c8d;
+  font-weight: 600;
+}
+
+.confirm-value {
+  font-size: 14px;         /* ✅ 优化：减少字体大小 */
+  color: #2c3e50;
+  font-weight: 600;
+  text-align: right;
+  max-width: 160px;        /* ✅ 优化：减少最大宽度 */
+  word-break: break-word;
+}
+
+.confirm-value.highlight {
+  color: #667eea;
+  font-weight: 700;
+  font-size: 16px;         /* ✅ 优化：减少字体大小 */
+}
+
+.modal-footer {
+  display: flex;
+  gap: 12px;
+  padding: 14px;           /* ✅ 优化：减少内边距 */
+  border-top: 1px solid #f0f0f0;
+  background-color: #fafbfc;
+}
+
+.modal-footer .btn {
+  flex: 1;
+  padding: 11px;           /* ✅ 优化：减少内边距 */
+  font-size: 14px;         /* ✅ 优化：减少字体大小 */
+}
+
+/* ========== 响应式设计 ========== */
+@media (max-width: 600px) {
+  .images-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+  }
+
+  .card {
+    margin: 8px 10px;      /* ✅ 优化：调整边距 */
+    padding: 16px;         /* ✅ 优化：减少内边距 */
+  }
+
+  .form-group {
+    margin-bottom: 14px;   /* ✅ 优化：调整间距 */
+  }
+
+  .card-title {
+    font-size: 15px;       /* ✅ 优化：减少字体大小 */
+  }
+
+  .footer-actions {
+    gap: 10px;
+    padding: 9px 10px;     /* ✅ 优化：减少内边距 */
+  }
+
+  .footer-actions .btn {
+    padding: 10px;
+    font-size: 13px;       /* ✅ 优化：减少字体大小 */
+  }
+
+  .form-input,
+  .form-textarea {
+    font-size: 15px;       /* ✅ 微调：确保易读性 */
+  }
+}

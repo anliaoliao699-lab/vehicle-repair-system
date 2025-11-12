@@ -1,0 +1,23 @@
+﻿{
+  "name": "wechat-miniapp",
+  "version": "1.0.0",
+  "description": "微信小程序维修服务系统",
+  "miniprogram": "miniprogram",
+  "scripts": {
+    "dev": "tsc --watch",
+    "build": "tsc",
+    "build:watch": "tsc --watch --incremental"
+  },
+  "keywords": [
+    "wechat",
+    "miniprogram",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.3.3",
+    "miniprogram-api-typings": "^3.13.1"
+  },
+  "dependencies": {}
+}

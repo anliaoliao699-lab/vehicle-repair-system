@@ -1,0 +1,35 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/dashboard/dashboard",
+    "pages/work-order/list",
+    "pages/work-order/detail",
+    "pages/register/register",
+    "pages/index/index",
+    "pages/logs/logs",
+    "pages/work-order/create/create",
+    "pages/work-order/edit"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#fff",
+    "navigationBarTitleText": "维修服务系统",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#667eea",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/dashboard/dashboard",
+        "text": "首页"
+      },
+      {
+        "pagePath": "pages/work-order/list",
+        "text": "工单"
+      }
+    ]
+  }
+}

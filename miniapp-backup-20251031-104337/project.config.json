@@ -1,0 +1,38 @@
+{
+  "projectname": "vehicle-repair-system",
+  "compileType": "miniprogram",
+  "appid": "wx8a7733737e087689",
+  "setting": {
+    "es6": true,
+    "postcss": true,
+    "basePath": "/",
+    "preloadFile": "",
+    "lazyloadPlaceholderEnable": false,
+    "checkSecurity": true,
+    "newFeature": true,
+    "minified": true,
+    "checkInvalidKey": true,
+    "autoAudios": false,
+    "checkSiteMap": true,
+    "ignoreUploadUnusedFiles": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "description": "微信小程序维修服务系统",
+  "packNpmManually": false,
+  "miniprogramRoot": "miniprogram/",
+  "condition": {},
+  "libVersion": "2.32.3",
+  "srcMiniprogramRoot": "miniprogram/",
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
+}
