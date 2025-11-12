@@ -1,4 +1,4 @@
-FROM node:18-alpine
+FROM node:18
 
 WORKDIR /app
 
@@ -8,7 +8,7 @@ RUN npm ci --legacy-peer-deps
 
 COPY . .
 
-RUN npx nest build
+RUN npm run build
 
 EXPOSE 8080
 
