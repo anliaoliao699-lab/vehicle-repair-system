@@ -4,10 +4,13 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --omit=dev
+# 添加 --legacy-peer-deps 标志
+RUN npm ci --omit=dev --legacy-peer-deps
 
-COPY dist ./dist
+COPY . .
+
+RUN npm run build
 
 EXPOSE 8080
 
-CMD ["node", "dist/main.js"]
+CMD ["npm", "run", "start:prod"]

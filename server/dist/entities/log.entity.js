@@ -28,7 +28,7 @@ __decorate([
     __metadata("design:type", String)
 ], Log.prototype, "description", void 0);
 __decorate([
-    (0, typeorm_1.Column)({ nullable: true, foreignKeyConstraintName: 'fk_log_user' }),
+    (0, typeorm_1.Column)('int', { nullable: true, name: 'user_id' }),
     __metadata("design:type", Number)
 ], Log.prototype, "userId", void 0);
 __decorate([
