@@ -9,6 +9,9 @@ RUN npm ci --legacy-peer-deps
 
 COPY . .
 
+# 修复权限问题 - 确保 node_modules/.bin 中的所有文件都有执行权限
+RUN chmod +x node_modules/.bin/* || true
+
 RUN npm run build
 
 # 生产阶段
