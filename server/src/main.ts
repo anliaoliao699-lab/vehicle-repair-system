@@ -1,28 +1,59 @@
+// src/main.ts
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  console.log('🟢 Starting application...');
-  console.log('🔹 Current DB_DATABASE:', process.env.DB_DATABASE);
-  console.log('🔹 Current DB_HOST:', process.env.DB_HOST);
-  console.log('🔹 NODE_ENV:', process.env.NODE_ENV);
+  console.log('========================================');
+  console.log('🚀 [START] NestJS Application Bootstrap');
+  console.log('========================================');
   
-  const app = await NestFactory.create(AppModule);
+  console.log('📋 Environment Variables:');
+  console.log('  • DB_DATABASE:', process.env.DB_DATABASE || '❌ NOT SET');
+  console.log('  • DB_HOST:', process.env.DB_HOST || '❌ NOT SET');
+  console.log('  • NODE_ENV:', process.env.NODE_ENV || '❌ NOT SET');
+  console.log('  • PORT:', process.env.PORT || 'DEFAULT: 3000');
   
-  // 启用 CORS（用于小程序跨域请求）
-  app.enableCors({
-    origin: true,
-    credentials: true,
-  });
-  
-  const port = process.env.PORT || 3000;
-  const host = '0.0.0.0';
-  
-  await app.listen(port,'0.0.0.0');
-   console.log(`✅ Application is running on port ${port}`);
+  try {
+    console.log('\n🔄 Creating Nest application...');
+    const app = await NestFactory.create(AppModule);
+    console.log('✅ Nest application created');
+    
+    console.log('\n🔄 Configuring CORS...');
+    app.enableCors({
+      origin: true,
+      credentials: true,
+    });
+    console.log('✅ CORS enabled');
+    
+    const port = parseInt(process.env.PORT || '3000', 10);
+    const host = '0.0.0.0';
+    
+    console.log(`\n🔄 Starting server on ${host}:${port}...`);
+    
+    // 监听服务器事件
+    await app.listen(port, host, () => {
+      console.log('========================================');
+      console.log(`✅ SUCCESS! Server is running`);
+      console.log(`📍 Address: http://${host}:${port}`);
+      console.log(`🌐 Public URL: http://localhost:${port}`);
+      console.log('========================================');
+    });
+    
+  } catch (error) {
+    console.error('========================================');
+    console.error('❌ CRITICAL ERROR');
+    console.error('========================================');
+    console.error('Error Type:', error.constructor.name);
+    console.error('Error Message:', error.message);
+    console.error('Stack Trace:', error.stack);
+    console.error('========================================');
+    
+    // 等待一下再退出，保证日志能被看到
+    setTimeout(() => {
+      process.exit(1);
+    }, 1000);
+  }
 }
 
-bootstrap().catch((err) => {
-  console.error('❌ Failed to start application:', err);
-  process.exit(1);
-});
+bootstrap();
