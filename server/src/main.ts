@@ -31,14 +31,14 @@ async function bootstrap() {
     
     console.log(`\n🔄 Starting server on ${host}:${port}...`);
     
-    // 监听服务器事件
-    await app.listen(port, host, () => {
-      console.log('========================================');
-      console.log(`✅ SUCCESS! Server is running`);
-      console.log(`📍 Address: http://${host}:${port}`);
-      console.log(`🌐 Public URL: http://localhost:${port}`);
-      console.log('========================================');
-    });
+    // 删除回调，直接等待
+    await app.listen(port, host);
+    
+    // 现在输出成功日志
+    console.log('========================================');
+    console.log(`✅ SUCCESS! Server is running`);
+    console.log(`📍 Listening on: ${host}:${port}`);
+    console.log('========================================');
     
   } catch (error) {
     console.error('========================================');
@@ -49,11 +49,13 @@ async function bootstrap() {
     console.error('Stack Trace:', error.stack);
     console.error('========================================');
     
-    // 等待一下再退出，保证日志能被看到
     setTimeout(() => {
       process.exit(1);
     }, 1000);
   }
 }
 
-bootstrap();
+bootstrap().catch((err) => {
+  console.error('❌ Uncaught error:', err);
+  process.exit(1);
+});
