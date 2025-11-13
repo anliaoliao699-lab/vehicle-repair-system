@@ -53,12 +53,14 @@ import { UploadsModule } from './uploads/uploads.module';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'vehicle_repair',
-      synchronize: false, 
-
+      synchronize: false,
       logging: false,
       autoLoadEntities: true,
       
-
+      // 🔑 关键：增加这些 TypeORM 支持的超时设置
+      retryAttempts: 10,        // 重试 10 次
+      retryDelay: 3000,         // 每次重试间隔 3 秒
+      keepConnectionAlive: true, // 保持连接活跃
     }),
     AuthModule,
     UsersModule,
