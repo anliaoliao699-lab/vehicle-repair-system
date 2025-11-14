@@ -373,7 +373,7 @@ Page({
             status: 'pending'
           };
           
-          await post(`/work-items/work-orders/${orderId}/items`, itemPayload);
+          await post(`/work-orders/${orderId}/items`, itemPayload);
           console.log('维修项目保存成功:', item.itemName);
         } catch (err) {
           console.error('保存维修项目失败:', err);
@@ -439,6 +439,16 @@ Page({
         }
       }
     });
+  },
+    preventTouchMove() {
+    return false;
+  },
+
+  /**
+   * 阻止事件冒泡
+   */
+  doNothing() {
+    return false;
   },
 
   // ========== 辅助方法 ==========

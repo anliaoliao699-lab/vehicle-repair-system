@@ -149,7 +149,7 @@
   </view>
 
   <!-- ✅ 美化的派工弹窗 -->
-  <view class="modal-mask-new {{showAssignModal ? 'show' : ''}}" wx:if="{{showAssignModal}}" bindtap="closeAssignModal" catchtouchmove="preventTouchMove">
+  <view class="modal-mask-new {{showAssignModal ? 'show' : ''}}" wx:if="{{showAssignModal}}" bindtap="closeAssignModal">
     <view class="modal-dialog-new" catchtap="doNothing">
       <!-- 弹窗头部 -->
       <view class="modal-header-new">

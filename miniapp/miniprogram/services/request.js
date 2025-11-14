@@ -9,7 +9,7 @@ exports.deleteRequest = deleteRequest;
 exports.uploadFile = uploadFile;
 
 const API_CONFIG = {
-    baseUrl: "http://localhost:3000",
+    baseUrl: "https://vehicle-repair3-199253-5-1384604975.sh.run.tcloudbase.com",
     timeout: 30000,
 };
 

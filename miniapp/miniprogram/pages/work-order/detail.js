@@ -121,7 +121,7 @@ Page({
 
   async loadWorkItems() {
     try {
-      const res = await get(`/work-items/work-orders/${this.data.orderId}/items`);
+      const res = await get(`/work-orders/${this.data.orderId}/items`);
       
       let workItems = [];
       if (Array.isArray(res)) {

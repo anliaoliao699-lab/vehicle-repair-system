@@ -75,12 +75,9 @@ Page({
     }
   },
 
-  /**
-   * 加载维修项目列表
-   */
   async loadWorkItems() {
     try {
-      const res = await get(`/work-items/work-orders/${this.data.orderId}/items`);
+      const res = await get(`/work-orders/${this.data.orderId}/items`);  // ✅ 修复：路由正确
       
       let workItems = [];
       if (Array.isArray(res)) {
@@ -260,6 +257,9 @@ Page({
 
   /**
    * 添加维修项目
+   * ✅ 修复：
+   *    1. 将 itemPayload 改为正确的变量名
+   *    2. 使用蛇形命名法（item_name 而非 itemName）
    */
   async addWorkItem() {
     const { newWorkItem, orderId } = this.data;
@@ -277,14 +277,16 @@ Page({
     wx.showLoading({ title: '添加中...' });
 
     try {
-      const data = {
-        workOrderId: orderId,
-        itemName: newWorkItem.itemName.trim(),
+      // ✅ 修复：定义 itemPayload 变量，使用蛇形命名
+      const itemPayload = {
+        item_name: newWorkItem.itemName.trim(),      // ✅ 改为 item_name（蛇形）
         description: newWorkItem.description.trim(),
         price: parseFloat(newWorkItem.price)
       };
 
-      await post('/work-items', data);
+      console.log('📤 发送维修项数据:', itemPayload);  // 调试日志
+
+      await post(`/work-orders/${orderId}/items`, itemPayload);  // ✅ 使用 itemPayload
       
       wx.hideLoading();
       wx.showToast({ title: '添加成功', icon: 'success' });
@@ -323,69 +325,83 @@ Page({
   },
 
   /**
-   * 选择图片
+   * 上传图片
    */
   chooseImage() {
-    const maxCount = 9 - this.data.images.length;
-    
-    wx.chooseMedia({
-      count: maxCount,
-      mediaType: ['image'],
+    wx.chooseImage({
+      count: 1,
+      sizeType: ['original', 'compressed'],
       sourceType: ['album', 'camera'],
-      success: (res) => {
-        this.uploadImages(res.tempFiles);
+      success: async (res) => {
+        const tempFilePaths = res.tempFilePaths;
+        await this.uploadImages(tempFilePaths);
       }
     });
   },
 
-async uploadImages(files) {
-  if (!files || files.length === 0) return;
+  /**
+   * 上传图片到服务器
+   */
+  async uploadImages(paths) {
+    if (!paths || paths.length === 0) return;
 
-  wx.showLoading({ title: '上传中...', mask: true });
+    wx.showLoading({ title: '上传中...' });
 
-  try {
-    const { orderId } = this.data;
+    for (const filePath of paths) {
+      try {
+        const result = await uploadFile({
+          filePath: filePath,
+          url: '/work-orders/upload',
+          name: 'file'
+        });
 
-    // ✅ 使用 Promise.all 一次性并发上传
-    await Promise.all(
-      files.map(file =>
-        uploadFile(file.tempFilePath, 'work_order', orderId)
-      )
-    );
+        console.log('图片上传结果:', result);
 
-    wx.showToast({ title: '上传成功', icon: 'success' });
+        // 将图片 URL 保存到工单
+        const newImages = [...this.data.images];
+        newImages.push({
+          url: result.url,
+          uploadedAt: new Date().toLocaleString()
+        });
 
-    // ✅ 确保刷新最新图片（可加 loading 避免闪烁）
-    wx.showLoading({ title: '刷新图片中...' });
-    await this.loadOrderImages();
+        this.setData({ images: newImages });
+
+        // 更新工单中的图片 ID
+        await put(`/work-orders/${this.data.orderId}`, {
+          imageUrls: newImages.map(img => img.url)
+        });
+
+        wx.showToast({ title: '上传成功', icon: 'success' });
+      } catch (err) {
+        console.error('上传失败:', err);
+        wx.showToast({ title: '上传失败', icon: 'error' });
+      }
+    }
+
     wx.hideLoading();
-
-  } catch (err) {
-    console.error('上传失败:', err);
-    wx.showToast({ title: '上传失败', icon: 'error' });
-    wx.hideLoading();
-  }
-},
-
+  },
 
   /**
    * 预览图片
    */
   previewImage(e) {
     const url = e.currentTarget.dataset.url;
-    const urls = this.data.images.map(img => img.url);
+    const images = this.data.images.map(img => img.url || img);
 
     wx.previewImage({
+      urls: images,
       current: url,
-      urls: urls
+      success: () => {
+        console.log('预览成功');
+      }
     });
   },
 
   /**
    * 删除图片
    */
-  async deleteImage(e) {
-    const id = e.currentTarget.dataset.id;
+  deleteImage(e) {
+    const url = e.currentTarget.dataset.url;
 
     wx.showModal({
       title: '确认删除',
@@ -393,9 +409,15 @@ async uploadImages(files) {
       success: async (res) => {
         if (res.confirm) {
           try {
-            await deleteRequest(`/uploads/${id}`);
+            const newImages = this.data.images.filter(img => (img.url || img) !== url);
+            this.setData({ images: newImages });
+
+            // 更新工单
+            await put(`/work-orders/${this.data.orderId}`, {
+              imageUrls: newImages.map(img => img.url || img)
+            });
+
             wx.showToast({ title: '删除成功', icon: 'success' });
-            this.loadOrderImages();
           } catch (err) {
             console.error('删除图片失败:', err);
             wx.showToast({ title: '删除失败', icon: 'error' });
@@ -594,7 +616,7 @@ async uploadImages(files) {
    * ✅ 新的派工接口
    */
   async assignWorkersNew(workerIds, roles) {
-    const API_BASE_URL = 'http://localhost:3000';
+    const API_BASE_URL = 'https://vehicle-repair3-199253-5-1384604975.sh.run.tcloudbase.com';
     const token = wx.getStorageSync('token');
 
     if (!this.data.orderId) {
@@ -660,7 +682,7 @@ async uploadImages(files) {
       success: async (res) => {
         if (res.confirm) {
           try {
-            const API_BASE_URL = 'http://localhost:3000';
+            const API_BASE_URL = 'https://vehicle-repair3-199253-5-1384604975.sh.run.tcloudbase.com';
             const token = wx.getStorageSync('token');
 
             await new Promise((resolve, reject) => {
