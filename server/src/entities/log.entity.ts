@@ -12,7 +12,7 @@ export class Log {
   @Column({ type: 'text', nullable: true })
   description: string;
 
-  @Column({ nullable: true, foreignKeyConstraintName: 'fk_log_user' })
+  @Column('int', { nullable: true, name: 'user_id' })
   userId: number;
 
   @ManyToOne(() => User, { nullable: true })

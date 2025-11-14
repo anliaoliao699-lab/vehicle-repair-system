@@ -66,7 +66,7 @@ export class WorkOrdersService {
 
   async findAll(filters: any, role: string, userId: number) {
     console.log('🔥 后端入口 filters', filters);
-    console.log('🔥 后端入口 role/userId', { role, userId });
+  console.log('🔥 后端入口 role/userId', { role, userId });
     
     let sql = `SELECT DISTINCT wo.* FROM work_orders wo`;
     const params: any[] = [];

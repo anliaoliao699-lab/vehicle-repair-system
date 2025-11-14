@@ -28,27 +28,27 @@ export class WorkOrdersController {
   @Post('upload')
   @ApiOperation({ summary: '上传工单图片到阿里云' })
   @UseInterceptors(FileInterceptor('file'))
-  async uploadFile(@UploadedFile() file:any) {
+  async uploadFile(@UploadedFile() file: any) {
     const url = await this.ossService.uploadFile(file);
     return { success: true, url };
   }
 
+  /**
+   * 获取工单列表
+   * ✅ 注意：@Get() 只需要一个装饰器
+   */
   @Get()
   @ApiOperation({ summary: '获取工单列表' })
-@Get()
-findAll(@Query() filters: any, @Request() req) {
-  console.log('🔥 JWT 原始内容', req.user);
-  const role = req.user.role;
-  const userId = req.user.id;   // ✅ 必须这样取
-  console.log('🔥 控制器入口', { role, userId, filters });
-  return this.workOrdersService.findAll(filters, role, userId);
-}
+  findAll(@Query() filters: any, @Request() req) {
+    console.log('🔥 JWT 原始内容', req.user);
+    const role = req.user.role;
+    const userId = req.user.id;   // ✅ 必须这样取
+    console.log('🔥 控制器入口', { role, userId, filters });
+    return this.workOrdersService.findAll(filters, role, userId);
+  }
 
-
-
-
-  // ==================== 新增: 派工相关接口 ====================
-  // 注意: 这些接口必须放在 @Get(':id') 之前!
+  // ==================== 派工相关接口 ====================
+  // 注意：这些接口必须放在 @Get(':id') 之前！
 
   /**
    * 获取工单已分配的员工列表
@@ -122,8 +122,21 @@ findAll(@Query() filters: any, @Request() req) {
     }
   }
 
+  /**
+   * 获取工单的图片列表
+   */
+  @ApiOperation({ summary: '获取工单图片列表' })
+  @Get(':id/images')
+  async getWorkOrderImages(@Param('id') id: string) {
+    return this.workOrdersService.getOrderImages(+id);
+  }
+
   // ==================== 原有的接口 ====================
 
+  /**
+   * 获取工单详情
+   * ✅ 这个必须放在最后，因为 :id 是通用的，会匹配所有上面没有匹配的路由
+   */
   @Get(':id')
   @ApiOperation({ summary: '获取工单详情' })
   findOne(@Param('id') id: string) {
@@ -137,19 +150,19 @@ findAll(@Query() filters: any, @Request() req) {
   }
 
   @Post(':id/assign')
-  @ApiOperation({ summary: '分配工单给工人' })
+  @ApiOperation({ summary: '分配工单给员工' })
   assign(@Param('id') id: string, @Body() assignDto: AssignWorkOrderDto, @Request() req) {
     return this.workOrdersService.assign(+id, assignDto.workers, req.user.userId);
   }
 
   @Post(':id/start')
-  @ApiOperation({ summary: '工人开始工单' })
+  @ApiOperation({ summary: '员工开始工单' })
   start(@Param('id') id: string, @Request() req) {
     return this.workOrdersService.start(+id, req.user.userId);
   }
 
   @Post(':id/complete')
-  @ApiOperation({ summary: '工人完成工单' })
+  @ApiOperation({ summary: '员工完成工单' })
   complete(@Param('id') id: string, @Request() req) {
     return this.workOrdersService.complete(+id, req.user.userId);
   }
@@ -165,14 +178,4 @@ findAll(@Query() filters: any, @Request() req) {
   close(@Param('id') id: string, @Request() req) {
     return this.workOrdersService.close(+id, req.user.userId);
   }
-  // 在你的 work-orders.controller.ts 中添加这个方法
-
-@ApiOperation({ summary: '获取工单图片列表' })
-@Get(':id/images')
-async getWorkOrderImages(@Param('id') id: string) {
-  return this.workOrdersService.getOrderImages(+id);
-}
-
-
-
 }
