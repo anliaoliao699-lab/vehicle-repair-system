@@ -394,8 +394,11 @@ Page({
   },
 
   /**
-   * 确认保存工单
-   * 🔥 关键修复：确保发送给后端的字段使用蛇形命名法
+   * ✅ 确认保存工单 - 修复版本
+   * 关键修复：
+   * 1. 确保发送给后端的字段使用蛇形命名法（snake_case）
+   * 2. 不要发送 user_id、userId 等前端创建的字段
+   * 3. 正确映射 vehicle_info、estimated_cost、actual_cost 等字段
    */
   async confirmSave() {
     this.setData({ showConfirm: false });
@@ -403,16 +406,20 @@ Page({
     
     try {
       // 第一步：创建工单
+      // ✅ 关键：这里的字段名必须与后端 entity 定义一致
       const workOrderPayload = {
         vehicle_info: this.data.workOrder.vehicleInfo.trim(),      // ✅ 蛇形：vehicle_info
-        description: this.data.workOrder.customerName.trim(),      // 车主名字放在description
+        description: this.data.workOrder.description.trim(),       // 保留在 description 字段
         estimated_cost: this.data.totalCost,                       // ✅ 蛇形：estimated_cost
         actual_cost: this.data.totalCost,                          // ✅ 蛇形：actual_cost
-        status: 'new'
+        // ❌ 不要发送这些：
+        // user_id: xxx,
+        // userId: xxx,
+        // customer_id: xxx,
+        // status: xxx (状态由后端自动设置为 'new')
       };
 
-      console.log('创建工单参数:', workOrderPayload);
-      console.log('=== 发送的工单数据 ===', JSON.stringify(workOrderPayload));
+      console.log('📤 创建工单，发送数据:', workOrderPayload);
       const workOrderRes = await post('/work-orders', workOrderPayload);
       const orderId = workOrderRes.id || workOrderRes.orderId;
 
@@ -420,7 +427,7 @@ Page({
         throw new Error('创建工单失败：未获得工单ID');
       }
 
-      console.log('工单创建成功，ID:', orderId);
+      console.log('✅ 工单创建成功，ID:', orderId);
 
       // 第二步：保存维修项目
       let workItems = this.data.workItems;
@@ -430,45 +437,57 @@ Page({
 
       for (const item of workItems) {
         try {
+          // ✅ 蛇形命名：item_name、order_id
           const itemPayload = {
-            order_id: orderId,
-            item_name: item.itemName,
+            item_name: item.itemName,        // ✅ 蛇形：item_name
             description: item.description,
             price: item.price,
             status: 'pending'
+            // ❌ 不要发送 order_id 在 URL 中已经有了
           };
           
           await post(`/work-orders/${orderId}/items`, itemPayload);
-          console.log('维修项目保存成功:', item.itemName);
+          console.log('✅ 维修项目保存成功:', item.itemName);
         } catch (err) {
-          console.error('保存维修项目失败:', err);
+          console.error('⚠️ 保存维修项目失败:', err);
           // 继续保存其他项目
         }
       }
 
-      // 第三步：上传图片
+      // 第三步：上传图片（可选）
       let images = this.data.images;
       if (!Array.isArray(images)) {
         images = [];
       }
 
       if (images.length > 0) {
-        console.log('开始上传', images.length, '张图片');
+        console.log('📷 开始上传', images.length, '张图片');
         
         let uploadSuccess = 0;
         let uploadFail = 0;
 
         for (const img of images) {
           try {
-            await uploadFile(img.path, 'work_order', orderId);
+            // ✅ 确保 filePath 是字符串
+            if (typeof img.path !== 'string') {
+              console.error('❌ filePath 不是字符串:', typeof img.path);
+              uploadFail++;
+              continue;
+            }
+
+            await uploadFile({
+              filePath: img.path,
+              url: '/work-orders/upload',
+              name: 'file'
+            });
             uploadSuccess++;
           } catch (err) {
-            console.error('图片上传失败:', err);
+            console.error('❌ 图片上传失败:', err);
             uploadFail++;
           }
         }
 
-        console.log(`图片上传完成：成功${uploadSuccess}张，失败${uploadFail}张`);
+        console.log(`📊 图片上传完成：成功${uploadSuccess}张，失败${uploadFail}张`);
       }
 
       wx.hideLoading();
@@ -482,7 +501,7 @@ Page({
       }, 1000);
 
     } catch (err) {
-      console.error('保存失败:', err);
+      console.error('❌ 保存失败:', err);
       wx.hideLoading();
       
       const errorMsg = err.message || '未知错误';

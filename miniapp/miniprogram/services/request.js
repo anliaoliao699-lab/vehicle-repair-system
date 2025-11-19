@@ -155,6 +155,10 @@ function uploadFile(filePath, relatedType, relatedId) {
                 uploadUrl += "&relatedId=" + relatedId;
             }
         }
+        if (typeof filePath !== 'string') {
+            reject(new Error(`filePath 必须是字符串`));
+            return;
+        }
         
         wx.uploadFile({
             url: uploadUrl,

@@ -29,7 +29,7 @@ import { UploadsModule } from './uploads/uploads.module';
       autoLoadEntities: true,
       synchronize: false,
       logging: false,
-      retryAttempts: 3,
+      retryAttempts: 5,
       retryDelay: 3000,
       keepConnectionAlive: true,
       extra: {

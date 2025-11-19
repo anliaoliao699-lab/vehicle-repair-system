@@ -24,6 +24,11 @@ async function bootstrap() {
       origin: true,
       credentials: true,
     });
+
+    app.getHttpServer().get('/health', (req, res) => {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
+    });
     console.log('✅ CORS configured');
     
     const port = parseInt(process.env.PORT || '3000', 10);

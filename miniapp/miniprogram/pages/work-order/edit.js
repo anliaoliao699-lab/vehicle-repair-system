@@ -77,7 +77,7 @@ Page({
 
   async loadWorkItems() {
     try {
-      const res = await get(`/work-orders/${this.data.orderId}/items`);  // ✅ 修复：路由正确
+      const res = await get(`/work-orders/${this.data.orderId}/items`);
       
       let workItems = [];
       if (Array.isArray(res)) {
@@ -163,7 +163,11 @@ Page({
   },
 
   /**
-   * 确认保存
+   * ✅ 确认保存工单 - 修复版本
+   * 关键修复：
+   * 1. 只发送可以编辑的字段
+   * 2. 使用蛇形命名法（vehicle_info、estimated_cost 等）
+   * 3. 不要发送 user_id、userId、staff_id、customer_id 等
    */
   async confirmSave() {
     const { workOrder } = this.data;
@@ -177,12 +181,24 @@ Page({
     wx.showLoading({ title: '保存中...' });
 
     try {
+      // ✅ 只发送可以编辑的字段，使用蛇形命名
       const updateData = {
-        vehicleInfo: workOrder.vehicleInfo,
+        vehicle_info: workOrder.vehicleInfo,      // ✅ 蛇形：vehicle_info
         description: workOrder.description || '',
-        estimatedCost: workOrder.estimatedCost || 0,
-        actualCost: workOrder.actualCost || 0
+        estimated_cost: workOrder.estimatedCost || 0,  // ✅ 蛇形：estimated_cost
+        actual_cost: workOrder.actualCost || 0    // ✅ 蛇形：actual_cost
+        // ❌ 不要发送这些字段：
+        // user_id: xxx,
+        // userId: xxx,
+        // staff_id: xxx,
+        // customer_id: xxx,
+        // status: xxx (状态由专门的 API 改，不在编辑时改)
+        // assigned_worker_id: xxx (由派工 API 改)
+        // created_by: xxx (创建人不能改)
+        // created_at: xxx (自动生成，不能改)
       };
+
+      console.log('📤 发送更新数据:', updateData);
 
       await put(`/work-orders/${this.data.orderId}`, updateData);
       
@@ -200,10 +216,11 @@ Page({
       }, 1500);
     } catch (err) {
       wx.hideLoading();
-      console.error('保存失败:', err);
+      console.error('❌ 保存失败:', err);
       wx.showToast({
-        title: '保存失败',
-        icon: 'error'
+        title: '保存失败: ' + (err.message || '未知错误'),
+        icon: 'error',
+        duration: 2000
       });
     }
   },
@@ -256,10 +273,10 @@ Page({
   },
 
   /**
-   * 添加维修项目
-   * ✅ 修复：
-   *    1. 将 itemPayload 改为正确的变量名
-   *    2. 使用蛇形命名法（item_name 而非 itemName）
+   * ✅ 添加维修项目 - 修复版本
+   * 关键修复：
+   * 1. 定义 itemPayload 变量
+   * 2. 使用蛇形命名法（item_name）
    */
   async addWorkItem() {
     const { newWorkItem, orderId } = this.data;
@@ -277,16 +294,16 @@ Page({
     wx.showLoading({ title: '添加中...' });
 
     try {
-      // ✅ 修复：定义 itemPayload 变量，使用蛇形命名
+      // ✅ 定义 itemPayload，使用蛇形命名
       const itemPayload = {
-        item_name: newWorkItem.itemName.trim(),      // ✅ 改为 item_name（蛇形）
+        item_name: newWorkItem.itemName.trim(),      // ✅ 蛇形：item_name
         description: newWorkItem.description.trim(),
         price: parseFloat(newWorkItem.price)
       };
 
-      console.log('📤 发送维修项数据:', itemPayload);  // 调试日志
+      console.log('📤 发送维修项目数据:', itemPayload);
 
-      await post(`/work-orders/${orderId}/items`, itemPayload);  // ✅ 使用 itemPayload
+      await post(`/work-orders/${orderId}/items`, itemPayload);
       
       wx.hideLoading();
       wx.showToast({ title: '添加成功', icon: 'success' });
@@ -295,8 +312,8 @@ Page({
       this.loadWorkItems();
     } catch (err) {
       wx.hideLoading();
-      console.error('添加项目失败:', err);
-      wx.showToast({ title: '添加失败', icon: 'error' });
+      console.error('❌ 添加项目失败:', err);
+      wx.showToast({ title: '添加失败: ' + (err.message || ''), icon: 'error' });
     }
   },
 
@@ -340,7 +357,10 @@ Page({
   },
 
   /**
-   * 上传图片到服务器
+   * ✅ 上传图片到服务器 - 修复版本
+   * 关键修复：
+   * 1. 验证 filePath 是字符串
+   * 2. 使用正确的 uploadFile 参数格式
    */
   async uploadImages(paths) {
     if (!paths || paths.length === 0) return;
@@ -349,13 +369,20 @@ Page({
 
     for (const filePath of paths) {
       try {
+        // ✅ 验证 filePath 是字符串
+        if (typeof filePath !== 'string') {
+          console.error('❌ filePath 不是字符串，类型为:', typeof filePath);
+          wx.showToast({ title: '图片路径错误', icon: 'error' });
+          continue;
+        }
+
         const result = await uploadFile({
           filePath: filePath,
           url: '/work-orders/upload',
           name: 'file'
         });
 
-        console.log('图片上传结果:', result);
+        console.log('✅ 图片上传结果:', result);
 
         // 将图片 URL 保存到工单
         const newImages = [...this.data.images];
@@ -366,15 +393,15 @@ Page({
 
         this.setData({ images: newImages });
 
-        // 更新工单中的图片 ID
+        // ✅ 更新工单时，只发送 image_urls
         await put(`/work-orders/${this.data.orderId}`, {
           image_urls: newImages.map(img => img.url)
         });
 
         wx.showToast({ title: '上传成功', icon: 'success' });
       } catch (err) {
-        console.error('上传失败:', err);
-        wx.showToast({ title: '上传失败', icon: 'error' });
+        console.error('❌ 上传失败:', err);
+        wx.showToast({ title: '上传失败: ' + (err.message || ''), icon: 'error' });
       }
     }
 
@@ -477,7 +504,7 @@ Page({
       const res = await get(`/users/available-workers`);
       const workers = Array.isArray(res) ? res : (res.workers || res.data || []);
       
-      // ✅ 格式化员工数据,确保有 username
+      // ✅ 格式化员工数据
       const formattedWorkers = workers.map(worker => ({
         id: worker.id,
         username: worker.username || worker.name || `员工${worker.id}`,
@@ -548,7 +575,7 @@ Page({
   },
 
   /**
-   * ✅ 选择工种
+   * 选择工种
    */
   selectRole(e) {
     const workerId = parseInt(e.currentTarget.dataset.workerId);
@@ -577,7 +604,7 @@ Page({
   },
 
   /**
-   * ✅ 确认派工 - 使用新接口
+   * 确认派工
    */
   async confirmAssign() {
     const { selectedWorkers, selectedRoles } = this.data;
@@ -599,7 +626,7 @@ Page({
       return;
     }
 
-    // ✅ 使用新的数据格式
+    // 使用新的数据格式
     const workerIds = selectedIds;
     const roles = {};
     selectedIds.forEach(workerId => {
@@ -613,7 +640,7 @@ Page({
   },
 
   /**
-   * ✅ 新的派工接口
+   * 新的派工接口
    */
   async assignWorkersNew(workerIds, roles) {
     const API_BASE_URL = 'https://vehicle-repair3-199253-5-1384604975.sh.run.tcloudbase.com';
