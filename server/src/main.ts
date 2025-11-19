@@ -1,5 +1,3 @@
-
-
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
@@ -24,12 +22,23 @@ async function bootstrap() {
       origin: true,
       credentials: true,
     });
-
-    app.getHttpServer().get('/health', (req, res) => {
-      res.writeHead(200, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify({ status: 'ok', timestamp: new Date().toISOString() }));
-    });
     console.log('✅ CORS configured');
+
+    // ✅ 方法1：使用 app.use() 添加健康检查路由（推荐）
+    app.use('/health', (req, res) => {
+      if (req.method === 'GET') {
+        res.status(200).json({
+          status: 'ok',
+          timestamp: new Date().toISOString(),
+          uptime: process.uptime(),
+          environment: process.env.NODE_ENV || 'unknown'
+        });
+      } else {
+        res.status(405).json({ error: 'Method not allowed' });
+      }
+    });
+
+    console.log('✅ Health check endpoint configured');
     
     const port = parseInt(process.env.PORT || '3000', 10);
     const host = '0.0.0.0';
@@ -37,20 +46,32 @@ async function bootstrap() {
     console.log(`\n🔄 Attempting to listen on ${host}:${port}...`);
     console.log('⏳ This step may take a moment...');
     
-    // 使用 getHttpServer 获取底层服务器
     const server = await app.listen(port, host);
     
-    // 如果能执行到这里，说明 listen 成功了
     console.log('========================================');
     console.log('✅ ✅ ✅ SUCCESS! Application started!');
     console.log('========================================');
     console.log(`📍 Server is listening on ${host}:${port}`);
     console.log(`🌐 Ready to accept connections`);
+    console.log('📌 Health check endpoint: GET /health');
     console.log('========================================');
     
-    // 捕获任何服务器错误
+    // 监听服务器错误
     server.on('error', (err) => {
       console.error('❌ Server error event:', err);
+    });
+
+    // 优雅关闭处理
+    process.on('SIGTERM', async () => {
+      console.log('⏸️  Received SIGTERM, gracefully shutting down...');
+      await app.close();
+      process.exit(0);
+    });
+
+    process.on('SIGINT', async () => {
+      console.log('⏸️  Received SIGINT, gracefully shutting down...');
+      await app.close();
+      process.exit(0);
     });
     
   } catch (error) {
