@@ -1,4 +1,4 @@
-<!-- 创建工单页面 -->
+<!-- 创建工单页面 - 优化版 -->
 <view class="container">
   <!-- 页面内容 -->
   <scroll-view scroll-y class="content" enable-flex>

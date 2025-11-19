@@ -368,7 +368,7 @@ Page({
 
         // 更新工单中的图片 ID
         await put(`/work-orders/${this.data.orderId}`, {
-          imageUrls: newImages.map(img => img.url)
+          image_urls: newImages.map(img => img.url)
         });
 
         wx.showToast({ title: '上传成功', icon: 'success' });
@@ -414,7 +414,7 @@ Page({
 
             // 更新工单
             await put(`/work-orders/${this.data.orderId}`, {
-              imageUrls: newImages.map(img => img.url || img)
+              image_urls: newImages.map(img => img.url || img)
             });
 
             wx.showToast({ title: '删除成功', icon: 'success' });

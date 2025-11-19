@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
@@ -14,6 +14,8 @@ import { LogsModule } from './logs/logs.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ReportsModule } from './reports/reports.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { HealthController } from './health.controller';
+import { DatabaseMonitorService } from './database-monitor.service';
 
 @Module({
   imports: [
@@ -53,14 +55,40 @@ import { UploadsModule } from './uploads/uploads.module';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'vehicle_repair',
+      
+      // ✅ 基础设置
+      autoLoadEntities: true,
       synchronize: false,
       logging: false,
-      autoLoadEntities: true,
       
-      // 🔑 关键：增加这些 TypeORM 支持的超时设置
-      retryAttempts: 10,        // 重试 10 次
-      retryDelay: 3000,         // 每次重试间隔 3 秒
-      keepConnectionAlive: true, // 保持连接活跃
+      // ✅ 关键：连接池和重试配置
+      retryAttempts: 5,         // ✅ 重连 5 次
+      retryDelay: 3000,         // ✅ 每次间隔 3 秒
+      keepConnectionAlive: true, // ✅ 保持连接
+      
+      // ✅ MySQL 驱动特定配置（最关键的部分）
+      extra: {
+        // 连接池大小
+        connectionLimit: 20,      // ✅ 最大 20 个连接
+        waitForConnections: true, // ✅ 等待可用连接
+        queueLimit: 0,           // ✅ 不限制等待队列
+        
+        // 连接超时
+        connectionTimeout: 10000,  // ✅ 10秒超时
+        acquireTimeout: 30000,     // ✅ 30秒获取超时
+        idleTimeout: 30000,        // ✅ 30秒空闲超时
+        
+        // ✅ 关键：自动重连
+        enableKeepAlive: true,
+        keepAliveInitialDelaySeconds: 0,
+        keepAliveInterval: 30000,  // ✅ 每30秒发送心跳
+        
+        // ✅ 处理连接断裂
+        supportBigNumbers: true,
+        bigNumberStrings: true,
+        charset: 'utf8mb4',
+        timezone: 'Z',
+      }
     }),
     AuthModule,
     UsersModule,
@@ -75,5 +103,23 @@ import { UploadsModule } from './uploads/uploads.module';
     ReportsModule,
     UploadsModule,
   ],
+  controllers: [HealthController],
+  providers: [DatabaseMonitorService],
 })
-export class AppModule {}
+export class AppModule implements OnModuleInit {
+  // ✅ 使用 any 类型兼容所有 TypeORM 版本
+  constructor(private dataSource: any) {}
+  
+  // ✅ 应用启动后验证数据库连接
+  async onModuleInit() {
+    try {
+      console.log('\n🔍 Verifying database connection on startup...');
+      await this.dataSource.query('SELECT 1');
+      console.log('✅ Database connection verified successfully\n');
+    } catch (error) {
+      console.error('❌ Database connection failed on startup:', error);
+      console.error('Exiting process...');
+      process.exit(1);
+    }
+  }
+}

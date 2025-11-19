@@ -34,7 +34,19 @@ Page({
     descriptionLength: 0
   },
 
+  /**
+   * 页面加载时初始化所有数据
+   * ✅ 修复：确保所有数组都被正确初始化，避免 undefined 错误
+   */
   onLoad() {
+    // ✅ 确保所有数组都已初始化
+    this.setData({
+      workItems: [],
+      images: [],
+      uploadedImages: [],
+      vehicles: []
+    });
+    
     this.loadVehicles();
   },
 
@@ -64,6 +76,7 @@ Page({
     } catch (err) {
       console.error('加载车辆列表失败:', err);
       // 不显示错误，因为车辆列表是可选的
+      this.setData({ vehicles: [] });  // ✅ 确保 vehicles 不是 undefined
     }
   },
 
@@ -140,7 +153,13 @@ Page({
    * 添加维修项目到本地列表
    */
   addWorkItem() {
-    const { newWorkItem, workItems } = this.data;
+    const { newWorkItem } = this.data;
+    let { workItems } = this.data;
+    
+    // ✅ 修复：确保 workItems 是数组
+    if (!Array.isArray(workItems)) {
+      workItems = [];
+    }
     
     if (!newWorkItem.itemName.trim()) {
       wx.showToast({ title: '请输入项目名称', icon: 'none' });
@@ -177,7 +196,14 @@ Page({
    */
   deleteWorkItem(e) {
     const itemId = e.currentTarget.dataset.id;
-    const workItems = this.data.workItems.filter(item => item.id !== itemId);
+    let { workItems } = this.data;
+    
+    // ✅ 修复：确保 workItems 是数组
+    if (!Array.isArray(workItems)) {
+      workItems = [];
+    }
+    
+    workItems = workItems.filter(item => item.id !== itemId);
     
     this.setData({ workItems });
     wx.showToast({ title: '已删除', icon: 'success' });
@@ -188,7 +214,13 @@ Page({
    * 计算维修项目总费用
    */
   calculateTotalCost() {
-    const { workItems } = this.data;
+    let { workItems } = this.data;
+    
+    // ✅ 修复：确保 workItems 是数组
+    if (!Array.isArray(workItems)) {
+      workItems = [];
+    }
+    
     const totalCost = workItems.reduce((sum, item) => sum + (parseFloat(item.price) || 0), 0);
     
     this.setData({ 
@@ -217,8 +249,14 @@ Page({
           isTemp: true
         }));
         
+        let { images } = this.data;
+        // ✅ 修复：确保 images 是数组
+        if (!Array.isArray(images)) {
+          images = [];
+        }
+        
         this.setData({
-          images: [...this.data.images, ...newImages]
+          images: [...images, ...newImages]
         });
         
         wx.showToast({ title: `已选择${tempFilePaths.length}张图片`, icon: 'success' });
@@ -236,10 +274,16 @@ Page({
     let urls = [];
     if (isTemp) {
       // 预览本地图片
-      urls = this.data.images.map(i => i.path);
+      let { images } = this.data;
+      if (Array.isArray(images)) {
+        urls = images.map(i => i.path);
+      }
     } else {
       // 预览已上传图片
-      urls = this.data.uploadedImages.map(i => i.url);
+      let { uploadedImages } = this.data;
+      if (Array.isArray(uploadedImages)) {
+        urls = uploadedImages.map(i => i.url);
+      }
     }
     
     wx.previewImage({
@@ -253,7 +297,14 @@ Page({
    */
   deleteLocalImage(e) {
     const imageId = e.currentTarget.dataset.id;
-    const images = this.data.images.filter(img => img.id !== imageId);
+    let { images } = this.data;
+    
+    // ✅ 修复：确保 images 是数组
+    if (!Array.isArray(images)) {
+      images = [];
+    }
+    
+    images = images.filter(img => img.id !== imageId);
     
     this.setData({ images });
     wx.showToast({ title: '已删除', icon: 'success' });
@@ -276,7 +327,12 @@ Page({
             await deleteRequest(`/uploads/${imageId}`);
             wx.hideLoading();
             
-            const uploadedImages = this.data.uploadedImages.filter(img => img.id !== imageId);
+            let { uploadedImages } = this.data;
+            if (!Array.isArray(uploadedImages)) {
+              uploadedImages = [];
+            }
+            uploadedImages = uploadedImages.filter(img => img.id !== imageId);
+            
             this.setData({ uploadedImages });
             
             wx.showToast({ title: '已删除', icon: 'success' });
@@ -308,7 +364,12 @@ Page({
       return;
     }
 
-    if (this.data.workItems.length === 0) {
+    let { workItems } = this.data;
+    if (!Array.isArray(workItems)) {
+      workItems = [];
+    }
+
+    if (workItems.length === 0) {
       wx.showModal({
         title: '提示',
         content: '该工单还没有任何维修项目，是否继续保存？',
@@ -346,7 +407,7 @@ Page({
         vehicle_info: this.data.workOrder.vehicleInfo.trim(),      // ✅ 蛇形：vehicle_info
         description: this.data.workOrder.customerName.trim(),      // 车主名字放在description
         estimated_cost: this.data.totalCost,                       // ✅ 蛇形：estimated_cost
-        actual_cost: this.data.totalCost,                                              // ✅ 蛇形：actual_cost
+        actual_cost: this.data.totalCost,                          // ✅ 蛇形：actual_cost
         status: 'new'
       };
 
@@ -362,7 +423,11 @@ Page({
       console.log('工单创建成功，ID:', orderId);
 
       // 第二步：保存维修项目
-      const workItems = this.data.workItems;
+      let workItems = this.data.workItems;
+      if (!Array.isArray(workItems)) {
+        workItems = [];
+      }
+
       for (const item of workItems) {
         try {
           const itemPayload = {
@@ -382,14 +447,18 @@ Page({
       }
 
       // 第三步：上传图片
-      const localImages = this.data.images;
-      if (localImages.length > 0) {
-        console.log('开始上传', localImages.length, '张图片');
+      let images = this.data.images;
+      if (!Array.isArray(images)) {
+        images = [];
+      }
+
+      if (images.length > 0) {
+        console.log('开始上传', images.length, '张图片');
         
         let uploadSuccess = 0;
         let uploadFail = 0;
 
-        for (const img of localImages) {
+        for (const img of images) {
           try {
             await uploadFile(img.path, 'work_order', orderId);
             uploadSuccess++;
@@ -440,7 +509,11 @@ Page({
       }
     });
   },
-    preventTouchMove() {
+
+  /**
+   * 阻止页面滑动
+   */
+  preventTouchMove() {
     return false;
   },
 
