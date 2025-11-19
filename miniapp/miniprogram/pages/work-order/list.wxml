@@ -101,7 +101,7 @@
         <view class="order-footer">
           <view class="footer-item">
             <text class="footer-label">费用</text>
-            <text class="footer-value price">¥{{item.actualCost || 0}}</text>
+            <text class="footer-value price">¥{{item.cost || item.estimatedCost || 0}}</text>
           </view>
           <view class="footer-item">
             <text class="footer-label">创建时间</text>

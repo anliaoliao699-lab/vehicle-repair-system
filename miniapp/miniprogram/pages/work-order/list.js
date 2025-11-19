@@ -39,7 +39,7 @@ Page({
         console.log('========== 用户信息 ==========');
         console.log('用户角色:', user.role);
         console.log('用户ID:', userId);
-        console.log('完整用户信息:', user);
+        console.log('完整用户信息:', user);Q
         console.log('============================');
         
         this.loadWorkOrders();
@@ -124,6 +124,7 @@ Page({
                         status: order.status,
                         vehicle_info: order.vehicle_info,
                         estimated_cost: order.estimated_cost,
+                        actual_cost: order.actual_cost,
                         created_at: order.created_at
                     });
                 });
@@ -146,8 +147,7 @@ Page({
                         || parseFloat(order.actualCost) 
                         || 0;
                     
-                    // 🔥 问题一修复：确保状态转换为小写并保留原始值
-                    // 问题原因：状态可能是 NEW、new、New 等不同大小写
+
                     const status = (order.status || 'new').toLowerCase();
                     
                     const formatted = {
