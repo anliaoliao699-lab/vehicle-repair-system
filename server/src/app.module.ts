@@ -1,4 +1,4 @@
-import { Module, OnModuleInit } from '@nestjs/common';
+import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
@@ -106,20 +106,6 @@ import { DatabaseMonitorService } from './database-monitor.service';
   controllers: [HealthController],
   providers: [DatabaseMonitorService],
 })
-export class AppModule implements OnModuleInit {
-  // ✅ 使用 any 类型兼容所有 TypeORM 版本
-  constructor(private dataSource: any) {}
-  
-  // ✅ 应用启动后验证数据库连接
-  async onModuleInit() {
-    try {
-      console.log('\n🔍 Verifying database connection on startup...');
-      await this.dataSource.query('SELECT 1');
-      console.log('✅ Database connection verified successfully\n');
-    } catch (error) {
-      console.error('❌ Database connection failed on startup:', error);
-      console.error('Exiting process...');
-      process.exit(1);
-    }
-  }
-}
+// ✅ 不在 AppModule 中添加 OnModuleInit，避免依赖注入问题
+// ✅ 数据库检查由 DatabaseMonitorService 负责
+export class AppModule {}
