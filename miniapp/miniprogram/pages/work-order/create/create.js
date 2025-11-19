@@ -475,11 +475,7 @@ Page({
               continue;
             }
 
-            await uploadFile({
-              filePath: img.path,
-              url: '/work-orders/upload',
-              name: 'file'
-            });
+            await uploadFile(img.path, 'work_order', orderId);
             uploadSuccess++;
           } catch (err) {
             console.error('❌ 图片上传失败:', err);

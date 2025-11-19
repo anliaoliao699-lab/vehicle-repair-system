@@ -83,7 +83,7 @@ Page({
 
        
         if (userRole === 'worker') {
-            queryParams.assignedWorkerId = this.data.userId;
+            queryParams.assigned_worker_id = this.data.userId;
             console.log('========== Worker模式 ==========');
             console.log('只加载分配给用户 ID:', userId, '的工单');
         }

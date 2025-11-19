@@ -127,7 +127,6 @@ function put(url, data) {
     return request(url, { method: "PUT", data: data });
 }
 
-
 // PATCH 请求
 function patch(url, data) {
     return request(url, { method: "PATCH", data: data });
@@ -138,9 +137,35 @@ function deleteRequest(url) {
     return request(url, { method: "DELETE" });
 }
 
-// 上传文件
+/**
+ * ✅ 修复后的 uploadFile 函数
+ * 
+ * 功能：上传文件到服务器
+ * 
+ * 参数说明：
+ * @param {string} filePath - 文件路径（必填，来自 wx.chooseImage 或其他文件选择）
+ * @param {string} relatedType - 关联类型（可选，如 'work_order'）
+ * @param {number} relatedId - 关联ID（可选，如工单ID）
+ * 
+ * 调用示例：
+ * ✅ 正确：await uploadFile(img.path, 'work_order', orderId)
+ * ❌ 错误（旧方式）：await uploadFile({ filePath: img.path, url: '...', name: '...' })
+ * 
+ * 返回值：Promise，解析为 { url: '...', ... } 或完整的响应数据
+ */
 function uploadFile(filePath, relatedType, relatedId) {
     return new Promise(function (resolve, reject) {
+        // ✅ 参数验证：确保 filePath 是字符串
+        if (typeof filePath !== 'string') {
+            reject(new Error(`filePath 必须是字符串，当前类型: ${typeof filePath}`));
+            return;
+        }
+        
+        if (!filePath.trim()) {
+            reject(new Error('filePath 不能为空'));
+            return;
+        }
+        
         const token = getToken();
         const header = {};
         
@@ -148,17 +173,21 @@ function uploadFile(filePath, relatedType, relatedId) {
             header["Authorization"] = "Bearer " + token;
         }
         
+        // ✅ 构建完整的上传 URL（支持关联类型和ID）
         let uploadUrl = API_CONFIG.baseUrl + "/uploads";
         if (relatedType) {
-            uploadUrl += "?relatedType=" + relatedType;
+            uploadUrl += "?relatedType=" + encodeURIComponent(relatedType);
             if (relatedId) {
-                uploadUrl += "&relatedId=" + relatedId;
+                uploadUrl += "&relatedId=" + encodeURIComponent(String(relatedId));
             }
         }
-        if (typeof filePath !== 'string') {
-            reject(new Error(`filePath 必须是字符串`));
-            return;
-        }
+        
+        console.log('📤 开始上传文件:', {
+            filePath: filePath,
+            relatedType: relatedType,
+            relatedId: relatedId,
+            uploadUrl: uploadUrl
+        });
         
         wx.uploadFile({
             url: uploadUrl,
@@ -166,21 +195,33 @@ function uploadFile(filePath, relatedType, relatedId) {
             name: "file",
             header: header,
             success: function (res) {
+                console.log('📥 上传响应状态码:', res.statusCode);
+                console.log('📥 上传响应数据:', res.data);
+                
                 if (res.statusCode === 200 || res.statusCode === 201) {
-                    const data = JSON.parse(res.data);
-                    if (data.code === 0 || !data.code) {
-                        resolve(data.data || data);
+                    try {
+                        const data = JSON.parse(res.data);
+                        console.log('✅ 上传成功，解析后数据:', data);
+                        
+                        // ✅ 支持两种响应格式
+                        if (data.code === 0 || data.code === undefined) {
+                            // 格式1：{ code: 0, data: { url: '...', ... } }
+                            // 格式2：{ url: '...', ... } 或其他直接返回数据
+                            resolve(data.data || data);
+                        } else {
+                            reject(new Error(data.message || "上传失败"));
+                        }
+                    } catch (parseErr) {
+                        console.error('❌ JSON 解析失败:', parseErr);
+                        reject(new Error("上传响应解析失败: " + parseErr.message));
                     }
-                    else {
-                        reject(new Error(data.message || "上传失败"));
-                    }
-                }
-                else {
-                    reject(new Error("上传失败: " + res.statusCode));
+                } else {
+                    reject(new Error("上传失败，状态码: " + res.statusCode + "，响应: " + res.data));
                 }
             },
             fail: function (err) {
-                reject(new Error("文件上传失败: " + err.errMsg));
+                console.error('❌ 上传请求失败:', err);
+                reject(new Error("文件上传失败: " + (err.errMsg || err.message || "未知错误")));
             },
         });
     });

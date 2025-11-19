@@ -376,11 +376,7 @@ Page({
           continue;
         }
 
-        const result = await uploadFile({
-          filePath: filePath,
-          url: '/work-orders/upload',
-          name: 'file'
-        });
+        const result = await uploadFile(filePath, 'work_order', this.data.orderId);
 
         console.log('✅ 图片上传结果:', result);
 
