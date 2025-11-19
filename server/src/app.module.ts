@@ -14,8 +14,6 @@ import { LogsModule } from './logs/logs.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { ReportsModule } from './reports/reports.module';
 import { UploadsModule } from './uploads/uploads.module';
-import { HealthController } from './health.controller';
-import { DatabaseMonitorService } from './database-monitor.service';
 
 @Module({
   imports: [
@@ -48,6 +46,7 @@ import { DatabaseMonitorService } from './database-monitor.service';
         }),
       ],
     }),
+    // ✅ 改进的 TypeORM 配置 - 关键改动只在这里
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: process.env.DB_HOST || 'localhost',
@@ -55,35 +54,26 @@ import { DatabaseMonitorService } from './database-monitor.service';
       username: process.env.DB_USERNAME || 'root',
       password: process.env.DB_PASSWORD || '',
       database: process.env.DB_DATABASE || 'vehicle_repair',
-      
-      // ✅ 基础设置
-      autoLoadEntities: true,
       synchronize: false,
       logging: false,
+      autoLoadEntities: true,
       
       // ✅ 关键：连接池和重试配置
-      retryAttempts: 5,         // ✅ 重连 5 次
-      retryDelay: 3000,         // ✅ 每次间隔 3 秒
-      keepConnectionAlive: true, // ✅ 保持连接
+      retryAttempts: 5,         // 重连 5 次
+      retryDelay: 3000,         // 每次间隔 3 秒
+      keepConnectionAlive: true, // 保持连接活跃
       
-      // ✅ MySQL 驱动特定配置（最关键的部分）
+      // ✅ MySQL 驱动特定配置
       extra: {
-        // 连接池大小
-        connectionLimit: 20,      // ✅ 最大 20 个连接
-        waitForConnections: true, // ✅ 等待可用连接
-        queueLimit: 0,           // ✅ 不限制等待队列
-        
-        // 连接超时
-        connectionTimeout: 10000,  // ✅ 10秒超时
-        acquireTimeout: 30000,     // ✅ 30秒获取超时
-        idleTimeout: 30000,        // ✅ 30秒空闲超时
-        
-        // ✅ 关键：自动重连
-        enableKeepAlive: true,
+        connectionLimit: 20,      // 最大 20 个连接
+        waitForConnections: true, // 等待可用连接
+        queueLimit: 0,           // 不限制等待队列
+        connectionTimeout: 10000, // 10秒连接超时
+        acquireTimeout: 30000,    // 30秒获取超时
+        idleTimeout: 30000,       // 30秒空闲超时
+        enableKeepAlive: true,    // 启用心跳保活
         keepAliveInitialDelaySeconds: 0,
-        keepAliveInterval: 30000,  // ✅ 每30秒发送心跳
-        
-        // ✅ 处理连接断裂
+        keepAliveInterval: 30000, // 每30秒发送心跳
         supportBigNumbers: true,
         bigNumberStrings: true,
         charset: 'utf8mb4',
@@ -103,9 +93,6 @@ import { DatabaseMonitorService } from './database-monitor.service';
     ReportsModule,
     UploadsModule,
   ],
-  controllers: [HealthController],
-  providers: [DatabaseMonitorService],
 })
-// ✅ 不在 AppModule 中添加 OnModuleInit，避免依赖注入问题
-// ✅ 数据库检查由 DatabaseMonitorService 负责
+// ✅ 保持最小化 - 什么都不加，让应用首先成功启动
 export class AppModule {}
