@@ -18,16 +18,14 @@ import { UploadsModule } from './uploads/uploads.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: '.env',
     }),
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: process.env.DB_HOST || 'localhost',
-      port: parseInt(process.env.DB_PORT || '3306', 10),
-      username: process.env.DB_USERNAME || 'root',
-      password: process.env.DB_PASSWORD || '',
-      database: process.env.DB_DATABASE || 'vehicle_repair',
-      entities: [],
+      host: process.env.DB_HOST,
+      port: parseInt(process.env.DB_PORT || '3306'),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_DATABASE,
       autoLoadEntities: true,
       synchronize: false,
       logging: false,
@@ -35,12 +33,8 @@ import { UploadsModule } from './uploads/uploads.module';
       retryDelay: 3000,
       keepConnectionAlive: true,
       extra: {
-        // ✅ 移除不支持的选项，只保留 mysql2 支持的
         connectionLimit: 10,
         waitForConnections: true,
-        queueLimit: 0,
-        enableKeepAlive: true,
-        keepAliveInitialDelaySeconds: 0,
       }
     }),
     AuthModule,
