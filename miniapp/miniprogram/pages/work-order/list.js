@@ -39,7 +39,7 @@ Page({
         console.log('========== 用户信息 ==========');
         console.log('用户角色:', user.role);
         console.log('用户ID:', userId);
-        console.log('完整用户信息:', user);Q
+        console.log('完整用户信息:', user);
         console.log('============================');
         
         this.loadWorkOrders();
