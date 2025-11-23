@@ -45,9 +45,10 @@
       <text class="title-text">工单信息</text>
     </view>
 
-    <view class="info-row" wx:if="{{workOrder.description}}">
-      <text class="info-label">问题描述</text>
-      <text class="info-value">{{workOrder.description}}</text>
+
+    <view class="info-row">
+      <text class="info-label">车主名字</text>
+      <text class="info-value">{{workOrder.customerName}}</text>
     </view>
 
     <view class="info-row">

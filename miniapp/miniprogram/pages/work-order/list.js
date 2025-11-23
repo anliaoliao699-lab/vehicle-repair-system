@@ -8,9 +8,10 @@ Page({
         filteredOrders: [],
         loading: false,
         page: 1,
-        limit: 20,
+        limit: 10000,
         total: 0,
         status: "all",
+        currentStatusLabel: "全部",
         searchText: "",
         userRole: '',
         userId: 0,
@@ -24,6 +25,25 @@ Page({
             { value: "paid", label: "已支付" },
             { value: "closed", label: "已关闭" },
         ],
+        // 🔑 状态映射表
+        statusColorMap: {
+            'new': '#2554b4ff',
+            'assigned': '#f37521ff',
+            'in_progress': '#d863e3ff',
+            'completed': '#4caf50',
+            'accepted': '#9c27b0',
+            'paid': '#8bc34a',
+            'closed': '#999999'
+        },
+        statusTextMap: {
+            'new': '新建',
+            'assigned': '已分配',
+            'in_progress': '进行中',
+            'completed': '已完成',
+            'accepted': '已接受',
+            'paid': '已支付',
+            'closed': '已关闭'
+        }
     },
 
     onLoad() {
@@ -39,7 +59,6 @@ Page({
         console.log('========== 用户信息 ==========');
         console.log('用户角色:', user.role);
         console.log('用户ID:', userId);
-        console.log('完整用户信息:', user);
         console.log('============================');
         
         this.loadWorkOrders();
@@ -54,36 +73,36 @@ Page({
         this.loadWorkOrders();
     },
 
-    onReachBottom() {
-        const { page, limit, total, workOrders } = this.data;
-        if (workOrders.length < total) {
-            this.setData({ page: page + 1 });
-            this.loadWorkOrders(true);
-        }
+    // 🔑 获取状态颜色
+    getStatusColor(status) {
+        status = (status || 'new').toLowerCase();
+        return this.data.statusColorMap[status] || '#999999';
+    },
+
+    // 🔑 获取状态文本
+    getStatusText(status) {
+        status = (status || 'new').toLowerCase();
+        return this.data.statusTextMap[status] || '未知';
     },
 
     loadWorkOrders(append = false) {
-
-    // 1. 重新解析，确保是数字
         const userStr = wx.getStorageSync('user');
         const user = userStr ? JSON.parse(userStr) : {};
         const userId = Number(user.id || 0);
 
-        // 2. 如果还是 0，说明没登录或缓存异常，直接 return
         if (userId === 0) {
             console.warn('❌ 未获取到有效用户ID，不查询');
             this.setData({ loading: false });
             return;
         }
 
-        this.setData({ userId }); // 写回 data
+        this.setData({ userId });
 
         const { page, limit, status, userRole } = this.data;
         const queryParams = { page, limit };
 
-       
         if (userRole === 'worker') {
-            queryParams.assigned_worker_id = this.data.userId;
+            queryParams.assigned_worker_id = userId;
             console.log('========== Worker模式 ==========');
             console.log('只加载分配给用户 ID:', userId, '的工单');
         }
@@ -92,14 +111,11 @@ Page({
             queryParams.status = status;
         }
 
-        console.log('========== 请求参数 ==========');
-        console.log(queryParams);
-        console.log('============================');
+        console.log('🔵 发送请求参数:', queryParams);
 
         get('/work-orders', queryParams)
-            .then((res) => {
-                console.log('========== API 返回 ==========');
-                console.log('原始响应:', res);
+            .then(async (res) => {
+                console.log('🟢 后端原始响应:', res);
                 
                 let orders = [];
                 let total = 0;
@@ -115,69 +131,62 @@ Page({
                     total = res.total || orders.length;
                 }
 
-                console.log('解析后的工单数量:', orders.length);
+                console.log(`📦 解析出 ${orders.length} 个工单`);
                 
-                // ✅ 打印每个工单的关键信息（显示原始字段）
-                orders.forEach((order, index) => {
-                    console.log(`工单 ${index + 1} (原始数据):`, {
-                        id: order.id,
-                        status: order.status,
-                        vehicle_info: order.vehicle_info,
-                        estimated_cost: order.estimated_cost,
-                        actual_cost: order.actual_cost,
-                        created_at: order.created_at
-                    });
-                });
+                if (orders.length > 0) {
+                    console.log('📄 第一个工单的完整原始数据:', orders[0]);
+                }
 
-                // 🔧 格式化字段：将蛇形命名转换为驼峰命名，并处理时间和费用字段
-                orders = orders.map(order => {
-                    // 🚀 关键修复：支持蛇形命名法的字段，并提前提取
-                    const vehicleInfo = order.vehicleInfo 
-                        || order.vehicle_info 
-                        || '未填写车辆信息';
-                    
+                // ✅ 性能优化：直接使用工单字段中的费用，避免 N+1 查询
+                orders = orders.map((order, idx) => {
+                    const vehicleInfo = order.vehicleInfo
+                        || order.vehicle_info
+                        || '未填写';
+
+                    // ✅ 车主名字直接使用 description 字段
+                    const customerName = order.description || '未填写';
+
                     const createdAt = this.formatDate(order.created_at || order.createdAt);
                     const updatedAt = this.formatDate(order.updated_at || order.updatedAt);
-                    
-                    const estimatedCost = parseFloat(order.estimated_cost) 
-                        || parseFloat(order.estimatedCost) 
-                        || 0;
-                    
-                    const actualCost = parseFloat(order.actual_cost) 
-                        || parseFloat(order.actualCost) 
-                        || 0;
-                    
+
+                    // ✅ 性能优化：直接使用字段费用，不再为每个工单单独请求 workItems
+                    const actualCost = parseFloat(order.actual_cost ?? order.actualCost ?? 0);
+                    const estimatedCost = parseFloat(order.estimated_cost ?? order.estimatedCost ?? 0);
+                    const displayCost = actualCost > 0 ? actualCost : estimatedCost;
 
                     const status = (order.status || 'new').toLowerCase();
-                    
-                    const formatted = {
+
+                    // 🔑 预处理状态颜色和文本，给WXML使用
+                    const statusColor = this.data.statusColorMap[status] || '#999999';
+                    const statusText = this.data.statusTextMap[status] || '未知';
+
+                    if (idx === 0) {
+                        console.log(`✅ 工单 ${order.id} 最终显示:`, {
+                            customerName: customerName,
+                            displayCost: displayCost,
+                            vehicleInfo: vehicleInfo,
+                            statusColor: statusColor,
+                            statusText: statusText
+                        });
+                    }
+
+                    return {
                         ...order,
-                        // 统一使用驼峰命名（为了前端模板兼容性）
                         vehicleInfo: vehicleInfo,
+                        customerName: customerName,
                         createdAt: createdAt,
                         updatedAt: updatedAt,
-                        estimatedCost: estimatedCost,
-                        actualCost: actualCost,
-                        status: status
+                        displayCost: displayCost,          // ✅ 直接使用字段费用
+                        status: status,
+                        statusColor: statusColor,          // 🔑 添加预处理的颜色
+                        statusText: statusText,            // 🔑 添加预处理的文本
+                        description: order.description || ''
                     };
-                    
-                    console.log('✅ 格式化后的工单:', {
-                        id: formatted.id,
-                        vehicleInfo: formatted.vehicleInfo,
-                        estimatedCost: formatted.estimatedCost,
-                        createdAt: formatted.createdAt,
-                        status: formatted.status
-                    });
-                    
-                    return formatted;
                 });
                 
-                const allOrders = append
-                    ? [...this.data.workOrders, ...orders]
-                    : orders;
+                const allOrders = orders;
                 
-                console.log('最终设置的工单数量:', allOrders.length);
-                console.log('============================');
+                console.log(`✅ 最终加载 ${allOrders.length} 个工单到页面`);
                 
                 this.setData({
                     workOrders: allOrders,
@@ -186,19 +195,15 @@ Page({
                 
                 this.filterWorkOrders();
                 
-                if (!append) {
-                    const roleText = userRole === 'worker' ? '我的' : '';
-                    wx.showToast({
-                        title: `已加载${roleText}${orders.length}个工单`,
-                        icon: "success",
-                        duration: 1500,
-                    });
-                }
+                const roleText = userRole === 'worker' ? '我的' : '';
+                wx.showToast({
+                    title: `已加载${roleText}${orders.length}个工单`,
+                    icon: "success",
+                    duration: 1500,
+                });
             })
             .catch((err) => {
-                console.error("========== 加载失败 ==========");
-                console.error("错误信息:", err);
-                console.error("============================");
+                console.error("❌ 加载工单失败:", err);
                 wx.showToast({
                     title: "加载失败: " + err.message,
                     icon: "error",
@@ -211,65 +216,71 @@ Page({
             });
     },
 
-    // 🔧 改进的日期格式化函数：支持更多格式
+    // 🔧 日期格式化函数
+    // ✅ 修复：减少8小时解决时区问题
     formatDate(dateStr) {
         if (!dateStr) return '';
         
         try {
             let date;
             
-            // 支持时间戳（数字类型）
             if (typeof dateStr === 'number') {
                 date = new Date(dateStr);
             } 
-            // 支持字符串类型
             else if (typeof dateStr === 'string') {
                 date = new Date(dateStr);
                 
-                // 如果无效，尝试其他格式
                 if (isNaN(date.getTime())) {
-                    // 尝试移除 'Z' 并重新解析（处理 ISO 8601 格式）
                     const cleanStr = dateStr.replace('Z', '');
                     date = new Date(cleanStr);
                 }
             }
             
-            // 验证日期有效性
             if (!date || isNaN(date.getTime())) {
-                console.warn('⚠️ 日期格式无法识别:', dateStr);
                 return '';
             }
             
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const hours = String(date.getHours()).padStart(2, '0');
-            const minutes = String(date.getMinutes()).padStart(2, '0');
+            // ✅ 修复：减少8小时（时区偏差）
+            const chineseDate = new Date(date.getTime() - 8 * 60 * 60 * 1000);
+            
+            const year = chineseDate.getFullYear();
+            const month = String(chineseDate.getMonth() + 1).padStart(2, '0');
+            const day = String(chineseDate.getDate()).padStart(2, '0');
+            const hours = String(chineseDate.getHours()).padStart(2, '0');
+            const minutes = String(chineseDate.getMinutes()).padStart(2, '0');
             
             return `${year}-${month}-${day} ${hours}:${minutes}`;
         } catch (e) {
-            console.error('❌ 日期格式化异常:', dateStr, e);
+            console.error('日期格式化异常:', dateStr, e);
             return '';
         }
     },
 
     onStatusChange(e) {
         const picker = e.detail;
-        const value = this.data.statusOptions[picker.value]?.value || "all";
+        const selectedOption = this.data.statusOptions[picker.value];
+        const value = selectedOption?.value || "all";
+        const label = selectedOption?.label || "全部";
+        
         console.log('状态筛选:', value);
-        this.setData({ status: value, page: 1 });
+        this.setData({ 
+            status: value, 
+            currentStatusLabel: label,
+            page: 1 
+        });
         this.loadWorkOrders();
     },
 
     onSearchInput(e) {
         const searchText = e.detail.value;
-        this.setData({ searchText: searchText, page: 1 });
+        this.setData({ searchText: searchText });
         this.filterWorkOrders();
     },
 
     filterWorkOrders() {
         const { workOrders, searchText } = this.data;
         let filtered = workOrders;
+        
         if (searchText) {
             const text = searchText.toLowerCase();
             filtered = filtered.filter((order) => 
@@ -282,6 +293,7 @@ Page({
         }
         
         console.log('过滤后的工单数量:', filtered.length);
+        
         this.setData({ filteredOrders: filtered });
     },
 

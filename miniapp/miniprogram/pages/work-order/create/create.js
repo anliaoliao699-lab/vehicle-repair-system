@@ -10,10 +10,10 @@ Page({
       customerName: '',
       description: '',
     },
-    vehicles: [],           // 车辆列表（可选下拉选择）
+    vehicles: [],
     
     // 维修项目
-    workItems: [],          // 已添加的项目列表
+    workItems: [],
     newWorkItem: {
       itemName: '',
       description: '',
@@ -22,9 +22,9 @@ Page({
     showWorkItemForm: false,
     
     // 图片
-    images: [],             // 本地选择但未上传的图片
-    uploadedImages: [],     // 已上传的图片
-    tempOrderId: 0,         // 临时保存的工单ID（用于上传图片）
+    images: [],
+    uploadedImages: [],
+    tempOrderId: 0,
     
     // UI状态
     showConfirm: false,
@@ -34,12 +34,7 @@ Page({
     descriptionLength: 0
   },
 
-  /**
-   * 页面加载时初始化所有数据
-   * ✅ 修复：确保所有数组都被正确初始化，避免 undefined 错误
-   */
   onLoad() {
-    // ✅ 确保所有数组都已初始化
     this.setData({
       workItems: [],
       images: [],
@@ -50,9 +45,6 @@ Page({
     this.loadVehicles();
   },
 
-  /**
-   * 加载车辆列表（可选功能）
-   */
   async loadVehicles() {
     try {
       const res = await get("/vehicles");
@@ -75,14 +67,10 @@ Page({
       this.setData({ vehicles });
     } catch (err) {
       console.error('加载车辆列表失败:', err);
-      // 不显示错误，因为车辆列表是可选的
-      this.setData({ vehicles: [] });  // ✅ 确保 vehicles 不是 undefined
+      this.setData({ vehicles: [] });
     }
   },
 
-  /**
-   * 选择车辆
-   */
   onVehicleChange(e) {
     const index = parseInt(e.detail.value);
     if (index >= 0 && index < this.data.vehicles.length) {
@@ -96,9 +84,6 @@ Page({
 
   // ========== 工单基本信息操作 ==========
 
-  /**
-   * 处理工单信息输入
-   */
   onInput(e) {
     const field = e.currentTarget.dataset.field;
     const value = e.detail.value;
@@ -107,7 +92,6 @@ Page({
       [`workOrder.${field}`]: value
     });
 
-    // 更新字符计数
     if (field === 'description') {
       this.setData({
         descriptionLength: value.length
@@ -117,9 +101,6 @@ Page({
 
   // ========== 维修项目操作 ==========
 
-  /**
-   * 显示添加维修项目表单
-   */
   showWorkItemForm() {
     this.setData({
       showWorkItemForm: true,
@@ -131,16 +112,10 @@ Page({
     });
   },
 
-  /**
-   * 关闭维修项目表单
-   */
   closeWorkItemForm() {
     this.setData({ showWorkItemForm: false });
   },
 
-  /**
-   * 处理维修项目输入
-   */
   onWorkItemInput(e) {
     const field = e.currentTarget.dataset.field;
     const value = e.detail.value;
@@ -149,14 +124,10 @@ Page({
     });
   },
 
-  /**
-   * 添加维修项目到本地列表
-   */
   addWorkItem() {
     const { newWorkItem } = this.data;
     let { workItems } = this.data;
     
-    // ✅ 修复：确保 workItems 是数组
     if (!Array.isArray(workItems)) {
       workItems = [];
     }
@@ -171,7 +142,6 @@ Page({
       return;
     }
 
-    // 生成临时ID（用于前端删除）
     const tempId = 'temp_' + Date.now();
     
     const newItem = {
@@ -179,7 +149,7 @@ Page({
       itemName: newWorkItem.itemName.trim(),
       description: newWorkItem.description.trim(),
       price: parseFloat(newWorkItem.price),
-      isTemp: true  // 标记为临时项目（尚未保存到数据库）
+      isTemp: true
     };
 
     this.setData({
@@ -191,14 +161,10 @@ Page({
     this.calculateTotalCost();
   },
 
-  /**
-   * 删除维修项目
-   */
   deleteWorkItem(e) {
     const itemId = e.currentTarget.dataset.id;
     let { workItems } = this.data;
     
-    // ✅ 修复：确保 workItems 是数组
     if (!Array.isArray(workItems)) {
       workItems = [];
     }
@@ -210,13 +176,9 @@ Page({
     this.calculateTotalCost();
   },
 
-  /**
-   * 计算维修项目总费用
-   */
   calculateTotalCost() {
     let { workItems } = this.data;
     
-    // ✅ 修复：确保 workItems 是数组
     if (!Array.isArray(workItems)) {
       workItems = [];
     }
@@ -233,16 +195,12 @@ Page({
 
   // ========== 图片操作 ==========
 
-  /**
-   * 选择图片
-   */
   chooseImage() {
     wx.chooseImage({
       count: 9,
       sizeType: ['compressed'],
       success: (res) => {
         const tempFilePaths = res.tempFilePaths;
-        // 将图片路径添加到本地列表（尚未上传）
         const newImages = tempFilePaths.map((path, index) => ({
           id: 'temp_' + Date.now() + '_' + index,
           path: path,
@@ -250,7 +208,6 @@ Page({
         }));
         
         let { images } = this.data;
-        // ✅ 修复：确保 images 是数组
         if (!Array.isArray(images)) {
           images = [];
         }
@@ -264,22 +221,17 @@ Page({
     });
   },
 
-  /**
-   * 预览图片
-   */
   previewImage(e) {
     const url = e.currentTarget.dataset.url;
     const isTemp = e.currentTarget.dataset.temp === 'true';
     
     let urls = [];
     if (isTemp) {
-      // 预览本地图片
       let { images } = this.data;
       if (Array.isArray(images)) {
         urls = images.map(i => i.path);
       }
     } else {
-      // 预览已上传图片
       let { uploadedImages } = this.data;
       if (Array.isArray(uploadedImages)) {
         urls = uploadedImages.map(i => i.url);
@@ -292,14 +244,10 @@ Page({
     });
   },
 
-  /**
-   * 删除本地选择的图片
-   */
   deleteLocalImage(e) {
     const imageId = e.currentTarget.dataset.id;
     let { images } = this.data;
     
-    // ✅ 修复：确保 images 是数组
     if (!Array.isArray(images)) {
       images = [];
     }
@@ -310,9 +258,6 @@ Page({
     wx.showToast({ title: '已删除', icon: 'success' });
   },
 
-  /**
-   * 删除已上传的图片
-   */
   deleteUploadedImage(e) {
     const imageId = e.currentTarget.dataset.id;
     
@@ -348,9 +293,6 @@ Page({
 
   // ========== 保存工单 ==========
 
-  /**
-   * 显示保存确认
-   */
   showSaveConfirm() {
     console.log('当前工单数据:', this.data.workOrder);
     
@@ -386,19 +328,15 @@ Page({
     this.setData({ showConfirm: true });
   },
 
-  /**
-   * 取消保存
-   */
   cancelConfirm() {
     this.setData({ showConfirm: false });
   },
 
   /**
-   * ✅ 确认保存工单 - 修复版本
-   * 关键修复：
-   * 1. 确保发送给后端的字段使用蛇形命名法（snake_case）
-   * 2. 不要发送 user_id、userId 等前端创建的字段
-   * 3. 正确映射 vehicle_info、estimated_cost、actual_cost 等字段
+   * ✅ 确认保存工单
+   * 关键点：
+   * 1. 车主名字 → description 字段
+   * 2. 费用 → actual_cost 和 estimated_cost 字段
    */
   async confirmSave() {
     this.setData({ showConfirm: false });
@@ -406,17 +344,11 @@ Page({
     
     try {
       // 第一步：创建工单
-      // ✅ 关键：这里的字段名必须与后端 entity 定义一致
       const workOrderPayload = {
-        vehicle_info: this.data.workOrder.vehicleInfo.trim(),      // ✅ 蛇形：vehicle_info
-        description: this.data.workOrder.description.trim(),       // 保留在 description 字段
-        estimated_cost: this.data.totalCost,                       // ✅ 蛇形：estimated_cost
-        actual_cost: this.data.totalCost,                          // ✅ 蛇形：actual_cost
-        // ❌ 不要发送这些：
-        // user_id: xxx,
-        // userId: xxx,
-        // customer_id: xxx,
-        // status: xxx (状态由后端自动设置为 'new')
+        vehicle_info: this.data.workOrder.vehicleInfo.trim(),
+        description: this.data.workOrder.customerName.trim(),    // ✅ 车主名字存入 description
+        actual_cost: this.data.totalCost,                         // ✅ 总费用存入 actual_cost
+        estimated_cost: this.data.totalCost,                      // ✅ 总费用也存入 estimated_cost
       };
 
       console.log('📤 创建工单，发送数据:', workOrderPayload);
@@ -437,20 +369,17 @@ Page({
 
       for (const item of workItems) {
         try {
-          // ✅ 蛇形命名：item_name、order_id
           const itemPayload = {
-            item_name: item.itemName,        // ✅ 蛇形：item_name
+            item_name: item.itemName,
             description: item.description,
             price: item.price,
             status: 'pending'
-            // ❌ 不要发送 order_id 在 URL 中已经有了
           };
           
           await post(`/work-orders/${orderId}/items`, itemPayload);
           console.log('✅ 维修项目保存成功:', item.itemName);
         } catch (err) {
           console.error('⚠️ 保存维修项目失败:', err);
-          // 继续保存其他项目
         }
       }
 
@@ -468,7 +397,6 @@ Page({
 
         for (const img of images) {
           try {
-            // ✅ 确保 filePath 是字符串
             if (typeof img.path !== 'string') {
               console.error('❌ filePath 不是字符串:', typeof img.path);
               uploadFail++;
@@ -490,7 +418,6 @@ Page({
       wx.showToast({ title: "创建成功", icon: "success" });
       
       setTimeout(() => {
-        // 返回工单列表页面
         wx.reLaunch({
           url: '/pages/work-order/list'
         });
@@ -509,9 +436,6 @@ Page({
     }
   },
 
-  /**
-   * 取消创建
-   */
   cancelCreate() {
     wx.showModal({
       title: '提示',
@@ -525,25 +449,14 @@ Page({
     });
   },
 
-  /**
-   * 阻止页面滑动
-   */
   preventTouchMove() {
     return false;
   },
 
-  /**
-   * 阻止事件冒泡
-   */
   doNothing() {
     return false;
   },
 
-  // ========== 辅助方法 ==========
-
-  /**
-   * 获取车辆显示文本
-   */
   getVehicleDisplay() {
     const { vehicles, workOrder } = this.data;
     if (!workOrder.vehicleId) {

@@ -59,6 +59,7 @@ Page({
       
       const workOrder = {
         vehicleInfo: res.vehicleInfo || res.vehicle_info || '',
+        customerName: res.customerName || res.customer_name || '',
         description: res.description || '',
         estimatedCost: parseFloat(res.estimatedCost || res.estimated_cost || 0),
         actualCost: parseFloat(res.actualCost || res.actual_cost || 0),
@@ -184,18 +185,10 @@ Page({
       // ✅ 只发送可以编辑的字段，使用蛇形命名
       const updateData = {
         vehicle_info: workOrder.vehicleInfo,      // ✅ 蛇形：vehicle_info
+        customer_name: workOrder.customerName,
         description: workOrder.description || '',
         estimated_cost: workOrder.estimatedCost || 0,  // ✅ 蛇形：estimated_cost
         actual_cost: workOrder.actualCost || 0    // ✅ 蛇形：actual_cost
-        // ❌ 不要发送这些字段：
-        // user_id: xxx,
-        // userId: xxx,
-        // staff_id: xxx,
-        // customer_id: xxx,
-        // status: xxx (状态由专门的 API 改，不在编辑时改)
-        // assigned_worker_id: xxx (由派工 API 改)
-        // created_by: xxx (创建人不能改)
-        // created_at: xxx (自动生成，不能改)
       };
 
       console.log('📤 发送更新数据:', updateData);
@@ -389,10 +382,7 @@ Page({
 
         this.setData({ images: newImages });
 
-        // ✅ 更新工单时，只发送 image_urls
-        await put(`/work-orders/${this.data.orderId}`, {
-          image_urls: newImages.map(img => img.url)
-        });
+
 
         wx.showToast({ title: '上传成功', icon: 'success' });
       } catch (err) {

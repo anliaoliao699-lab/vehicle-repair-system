@@ -26,7 +26,7 @@ export class WorkOrdersService {
 
   async create(createDto: CreateWorkOrderDto, userId: number) {
     const orderNo = this.generateOrderNo();
-    
+
     let customerId = null;
 
     const workOrder = this.workOrderRepository.create({
@@ -35,7 +35,8 @@ export class WorkOrdersService {
       vehicleId: null,
       vehicleInfo: createDto.vehicle_info || 'N/A',
       description: createDto.description || null,
-      estimatedCost: createDto.estimatedCost || 0,
+      estimatedCost: createDto.estimatedCost || createDto.estimated_cost || 0,
+      actualCost: createDto.actualCost || createDto.actual_cost || 0,
       estimatedCompletionTime: createDto.estimatedCompletionTime ? new Date(createDto.estimatedCompletionTime) : null,
       priority: createDto.priority || 1,
       createdBy: userId,

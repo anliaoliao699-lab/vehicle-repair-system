@@ -11,9 +11,9 @@ Page({
     userRole: '',
     userId: 0,
     canEdit: false,
-    canComplete: false,     // ✅ 是否可以完成工单(worker)
+    canComplete: false,
     showConfirm: false,
-    showCompleteConfirm: false,  // ✅ 完成工单确认弹窗
+    showCompleteConfirm: false,
     totalCost: 0,
     totalCostFixed: '0.00'
   },
@@ -28,7 +28,6 @@ Page({
     const orderId = parseInt(options.id);
     this.setData({ orderId });
 
-    // 获取用户信息
     const userStr = wx.getStorageSync('user');
     const user = userStr ? JSON.parse(userStr) : {};
     const userRole = user.role || '';
@@ -60,28 +59,40 @@ Page({
       const res = await get("/work-orders/" + this.data.orderId);
       console.log('工单详情:', res);
 
-      const fmt = (t) => {
-        if (!t) return '';
-        const d = new Date(t);
-        return `${d.getFullYear()}-${(d.getMonth()+1)
-          .toString().padStart(2, '0')}-${d.getDate()
-          .toString().padStart(2, '0')} ${d.getHours()
-          .toString().padStart(2, '0')}:${d.getMinutes()
-          .toString().padStart(2, '0')}`;
-      };
-
-      res.createdAt = fmt(res.createdAt);
-      res.updatedAt = fmt(res.updatedAt);
+      const createdAt = this.formatDate(res.created_at || res.createdAt);
+      const updatedAt = this.formatDate(res.updated_at || res.updatedAt);
       
-      const actualCost = parseFloat(res.actualCost) || 0;
-      const estimatedCost = parseFloat(res.estimatedCost) || 0;
+      // ✅ 费用处理：确保正确提取
+      const actualCost = (() => {
+        const ac = res.actual_cost ?? res.actualCost;
+        const parsed = parseFloat(ac);
+        return !isNaN(parsed) ? parsed : 0;
+      })();
       
-      res.estimatedCost = estimatedCost;
+      const estimatedCost = (() => {
+        const ec = res.estimated_cost ?? res.estimatedCost;
+        const parsed = parseFloat(ec);
+        return !isNaN(parsed) ? parsed : 0;
+      })();
+      
+      const displayCost = actualCost > 0 ? actualCost : estimatedCost;
+      
+      res.createdAt = createdAt;
+      res.updatedAt = updatedAt;
       res.actualCost = actualCost;
-      res.cost = actualCost > 0 ? actualCost : estimatedCost;
+      res.estimatedCost = estimatedCost;
+      res.cost = displayCost;
+      
+      // ✅ 车主名字直接使用 description 字段
+      res.customerName = res.description || '未填写';
 
-      // ✅ 判断当前用户是否可以完成工单
-      // 条件: 是worker 且 工单状态是 assigned 或 in_progress
+      console.log('💰 工单费用:', {
+        actualCost: actualCost,
+        estimatedCost: estimatedCost,
+        displayCost: displayCost,
+        customerName: res.customerName
+      });
+
       const canComplete = this.data.userRole === 'worker' && 
                          (res.status === 'assigned' || res.status === 'in_progress');
 
@@ -94,6 +105,44 @@ Page({
     } catch (err) {
       console.error('加载工单详情失败:', err);
       wx.showToast({ title: '加载失败', icon: 'error' });
+    }
+  },
+
+
+  formatDate(dateStr) {
+    if (!dateStr) return '';
+    
+    try {
+      let date;
+      
+      if (typeof dateStr === 'number') {
+        date = new Date(dateStr);
+      } else if (typeof dateStr === 'string') {
+        date = new Date(dateStr);
+        
+        if (isNaN(date.getTime())) {
+          const cleanStr = dateStr.replace('Z', '');
+          date = new Date(cleanStr);
+        }
+      }
+      
+      if (!date || isNaN(date.getTime())) {
+        return '';
+      }
+      
+      // ✅ 修复：减少8小时（时区偏差）
+      const chineseDate = new Date(date.getTime() - 8 * 60 * 60 * 1000);
+      
+      const year = chineseDate.getFullYear();
+      const month = String(chineseDate.getMonth() + 1).padStart(2, '0');
+      const day = String(chineseDate.getDate()).padStart(2, '0');
+      const hours = String(chineseDate.getHours()).padStart(2, '0');
+      const minutes = String(chineseDate.getMinutes()).padStart(2, '0');
+      
+      return `${year}-${month}-${day} ${hours}:${minutes}`;
+    } catch (e) {
+      console.error('日期格式化异常:', dateStr, e);
+      return '';
     }
   },
 
@@ -112,7 +161,6 @@ Page({
       }));
       
       this.setData({ assignedWorkers: formattedWorkers });
-      console.log('详情页-已分配员工:', formattedWorkers);
     } catch (err) {
       console.error('加载已分配员工失败:', err);
       this.setData({ assignedWorkers: [] });
@@ -186,8 +234,6 @@ Page({
     });
   },
 
-  // ========== 管理员编辑 ==========
-  
   showEditConfirm() {
     this.setData({ showConfirm: true });
   },
@@ -203,31 +249,19 @@ Page({
     });
   },
 
-  // ========== ✅ 员工完成工单 ==========
-  
-  /**
-   * 显示完成工单确认弹窗
-   */
   showCompleteConfirm() {
     this.setData({ showCompleteConfirm: true });
   },
 
-  /**
-   * 取消完成工单
-   */
   cancelComplete() {
     this.setData({ showCompleteConfirm: false });
   },
 
-  /**
-   * 确认完成工单
-   */
   async confirmComplete() {
     this.setData({ showCompleteConfirm: false });
     wx.showLoading({ title: '提交中...' });
 
     try {
-      // 调用完成工单接口
       await post(`/work-orders/${this.data.orderId}/complete`, {});
       
       wx.hideLoading();
@@ -237,7 +271,6 @@ Page({
         duration: 2000
       });
 
-      // 延迟一下再刷新,确保后端状态已更新
       setTimeout(() => {
         this.loadOrderDetail();
       }, 500);
@@ -252,8 +285,6 @@ Page({
       });
     }
   },
-
-  // ========== 辅助方法 ==========
 
   getStatusColor(status) {
     const map = {

@@ -23,6 +23,21 @@ export class CreateWorkOrderDto {
   estimatedCost?: number;
 
   @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  estimated_cost?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  actualCost?: number;
+
+  @ApiProperty({ required: false })
+  @IsNumber()
+  @IsOptional()
+  actual_cost?: number;
+
+  @ApiProperty({ required: false })
   @IsDateString()
   @IsOptional()
   estimatedCompletionTime?: string;
@@ -31,9 +46,4 @@ export class CreateWorkOrderDto {
   @IsNumber()
   @IsOptional()
   priority?: number;
-
-  @ApiProperty({ required: false })
-  @IsNumber()
-  @IsOptional()
-  actual_cost?: number;
 }
