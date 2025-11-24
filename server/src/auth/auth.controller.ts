@@ -28,7 +28,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   refresh(@Request() req) {
-    return this.authService.refreshToken(req.user.userId);
+    return this.authService.refreshToken(req.user.id);
   }
 
   @Get('profile')

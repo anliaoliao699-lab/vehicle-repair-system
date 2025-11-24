@@ -23,13 +23,13 @@ let NotificationsController = class NotificationsController {
     }
     findByUser(req, isRead) {
         const isReadBool = isRead === 'true' ? true : isRead === 'false' ? false : undefined;
-        return this.notificationsService.findByUser(req.user.userId, isReadBool);
+        return this.notificationsService.findByUser(req.user.id, isReadBool);
     }
     markAsRead(id) {
         return this.notificationsService.markAsRead(+id);
     }
     markAllAsRead(req) {
-        return this.notificationsService.markAllAsRead(req.user.userId);
+        return this.notificationsService.markAllAsRead(req.user.id);
     }
 };
 exports.NotificationsController = NotificationsController;

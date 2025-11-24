@@ -22,7 +22,7 @@ export class WorkOrdersController {
   @Post()
   @ApiOperation({ summary: '创建工单' })
   create(@Body() createDto: CreateWorkOrderDto, @Request() req) {
-    return this.workOrdersService.create(createDto, req.user.userId);
+    return this.workOrdersService.create(createDto, req.user.id);
   }
 
   @Post('upload')
@@ -146,36 +146,36 @@ export class WorkOrdersController {
   @Put(':id')
   @ApiOperation({ summary: '更新工单' })
   update(@Param('id') id: string, @Body() updateData: any, @Request() req) {
-    return this.workOrdersService.update(+id, updateData, req.user.userId);
+    return this.workOrdersService.update(+id, updateData, req.user.id);
   }
 
   @Post(':id/assign')
   @ApiOperation({ summary: '分配工单给员工' })
   assign(@Param('id') id: string, @Body() assignDto: AssignWorkOrderDto, @Request() req) {
-    return this.workOrdersService.assign(+id, assignDto.workers, req.user.userId);
+    return this.workOrdersService.assign(+id, assignDto.workers, req.user.id);
   }
 
   @Post(':id/start')
   @ApiOperation({ summary: '员工开始工单' })
   start(@Param('id') id: string, @Request() req) {
-    return this.workOrdersService.start(+id, req.user.userId);
+    return this.workOrdersService.start(+id, req.user.id);
   }
 
   @Post(':id/complete')
   @ApiOperation({ summary: '员工完成工单' })
   complete(@Param('id') id: string, @Request() req) {
-    return this.workOrdersService.complete(+id, req.user.userId);
+    return this.workOrdersService.complete(+id, req.user.id);
   }
 
   @Post(':id/accept')
   @ApiOperation({ summary: '车主验收工单' })
   accept(@Param('id') id: string, @Request() req) {
-    return this.workOrdersService.accept(+id, req.user.userId);
+    return this.workOrdersService.accept(+id, req.user.id);
   }
 
   @Post(':id/close')
   @ApiOperation({ summary: '关闭工单' })
   close(@Param('id') id: string, @Request() req) {
-    return this.workOrdersService.close(+id, req.user.userId);
+    return this.workOrdersService.close(+id, req.user.id);
   }
 }

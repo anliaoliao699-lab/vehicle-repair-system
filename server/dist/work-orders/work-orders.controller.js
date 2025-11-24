@@ -27,7 +27,7 @@ let WorkOrdersController = class WorkOrdersController {
         this.ossService = ossService;
     }
     create(createDto, req) {
-        return this.workOrdersService.create(createDto, req.user.userId);
+        return this.workOrdersService.create(createDto, req.user.id);
     }
     async uploadFile(file) {
         const url = await this.ossService.uploadFile(file);
@@ -90,22 +90,22 @@ let WorkOrdersController = class WorkOrdersController {
         return this.workOrdersService.findOne(+id);
     }
     update(id, updateData, req) {
-        return this.workOrdersService.update(+id, updateData, req.user.userId);
+        return this.workOrdersService.update(+id, updateData, req.user.id);
     }
     assign(id, assignDto, req) {
-        return this.workOrdersService.assign(+id, assignDto.workers, req.user.userId);
+        return this.workOrdersService.assign(+id, assignDto.workers, req.user.id);
     }
     start(id, req) {
-        return this.workOrdersService.start(+id, req.user.userId);
+        return this.workOrdersService.start(+id, req.user.id);
     }
     complete(id, req) {
-        return this.workOrdersService.complete(+id, req.user.userId);
+        return this.workOrdersService.complete(+id, req.user.id);
     }
     accept(id, req) {
-        return this.workOrdersService.accept(+id, req.user.userId);
+        return this.workOrdersService.accept(+id, req.user.id);
     }
     close(id, req) {
-        return this.workOrdersService.close(+id, req.user.userId);
+        return this.workOrdersService.close(+id, req.user.id);
     }
 };
 exports.WorkOrdersController = WorkOrdersController;

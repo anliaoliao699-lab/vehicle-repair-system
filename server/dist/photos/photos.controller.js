@@ -22,7 +22,7 @@ let PhotosController = class PhotosController {
         this.photosService = photosService;
     }
     create(createDto, req) {
-        return this.photosService.create(createDto, req.user.userId);
+        return this.photosService.create(createDto, req.user.id);
     }
     findByWorkOrder(workOrderId) {
         return this.photosService.findByWorkOrder(+workOrderId);

@@ -30,7 +30,7 @@ let AuthController = class AuthController {
         return this.authService.login(loginDto);
     }
     refresh(req) {
-        return this.authService.refreshToken(req.user.userId);
+        return this.authService.refreshToken(req.user.id);
     }
     getProfile(req) {
         return req.user;

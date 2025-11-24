@@ -14,7 +14,7 @@ export class PhotosController {
   @Post()
   @ApiOperation({ summary: '注册照片' })
   create(@Body() createDto: any, @Request() req) {
-    return this.photosService.create(createDto, req.user.userId);
+    return this.photosService.create(createDto, req.user.id);
   }
 
   @Get('work-orders/:workOrderId')

@@ -15,7 +15,7 @@ export class NotificationsController {
   @ApiOperation({ summary: '获取我的通知列表' })
   findByUser(@Request() req, @Query('isRead') isRead?: string) {
     const isReadBool = isRead === 'true' ? true : isRead === 'false' ? false : undefined;
-    return this.notificationsService.findByUser(req.user.userId, isReadBool);
+    return this.notificationsService.findByUser(req.user.id, isReadBool);
   }
 
   @Post(':id/read')
@@ -27,6 +27,6 @@ export class NotificationsController {
   @Post('read-all')
   @ApiOperation({ summary: '全部标记为已读' })
   markAllAsRead(@Request() req) {
-    return this.notificationsService.markAllAsRead(req.user.userId);
+    return this.notificationsService.markAllAsRead(req.user.id);
   }
 }
