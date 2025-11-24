@@ -24,7 +24,11 @@ async function bootstrap() {
     });
     console.log('✅ CORS configured');
 
-    // ✅ 方法1：使用 app.use() 添加健康检查路由（推荐）
+    // 设置全局路由前缀
+    app.setGlobalPrefix('api');
+    console.log('✅ Global prefix /api configured');
+
+    // ✅ 健康检查路由（放在全局前缀之后）
     app.use('/health', (req, res) => {
       if (req.method === 'GET') {
         res.status(200).json({
@@ -38,7 +42,7 @@ async function bootstrap() {
       }
     });
 
-    console.log('✅ Health check endpoint configured');
+    console.log('✅ Health check endpoint configured at /health');
     
     const port = parseInt(process.env.PORT || '3000', 10);
     const host = '0.0.0.0';
@@ -54,6 +58,7 @@ async function bootstrap() {
     console.log(`📍 Server is listening on ${host}:${port}`);
     console.log(`🌐 Ready to accept connections`);
     console.log('📌 Health check endpoint: GET /health');
+    console.log('📌 API routes available at: GET /api/*');
     console.log('========================================');
     
     // 监听服务器错误
