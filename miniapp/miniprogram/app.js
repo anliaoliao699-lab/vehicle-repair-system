@@ -11,6 +11,8 @@ App({
   },
  globalData: { heartbeatTimer: null },
   
+
+ 
   onLaunch() {
     const { get } = require('./services/request');
     this.globalData.heartbeatTimer = setInterval(async () => {

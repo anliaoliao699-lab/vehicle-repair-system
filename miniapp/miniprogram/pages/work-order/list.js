@@ -46,21 +46,46 @@ Page({
         }
     },
 
-    onLoad() {
+    onLoad(options) {
         const userStr = wx.getStorageSync('user');
         const user = userStr ? JSON.parse(userStr) : {};
         const userId = user.id || wx.getStorageSync('userId') || 0;
-        
+
+        // 处理从 dashboard 传递过来的 status 参数
+        let initialStatus = 'all';
+        let initialStatusLabel = '全部';
+
+        if (options && options.status) {
+            const statusParam = options.status.toLowerCase();
+
+            // 根据传入的状态参数设置初始筛选
+            const statusMap = {
+                'pending': { value: 'new', label: '新建' },
+                'completed': { value: 'completed', label: '已完成' },
+                'new': { value: 'new', label: '新建' },
+                'assigned': { value: 'assigned', label: '已分配' },
+                'in_progress': { value: 'in_progress', label: '进行中' }
+            };
+
+            if (statusMap[statusParam]) {
+                initialStatus = statusMap[statusParam].value;
+                initialStatusLabel = statusMap[statusParam].label;
+            }
+        }
+
         this.setData({
             userRole: user.role || '',
-            userId: userId
+            userId: userId,
+            status: initialStatus,
+            currentStatusLabel: initialStatusLabel
         });
-        
+
         console.log('========== 用户信息 ==========');
         console.log('用户角色:', user.role);
         console.log('用户ID:', userId);
+        console.log('初始状态筛选:', initialStatus);
         console.log('============================');
-        
+
         this.loadWorkOrders();
     },
 

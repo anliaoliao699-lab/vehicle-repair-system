@@ -74,6 +74,13 @@ page {
   border-radius: 12rpx;
   text-align: center;
   color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 2rpx 8rpx rgba(102, 126, 234, 0.3);
+}
+
+.stat-card:active {
+  transform: scale(0.95);
+  box-shadow: 0 1rpx 4rpx rgba(102, 126, 234, 0.2);
 }
 
 .stat-value {
@@ -84,7 +91,7 @@ page {
 
 .stat-label {
   font-size: 24rpx;
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 /* 快捷操作 */
@@ -106,17 +113,23 @@ page {
   gap: 12rpx;
 }
 
+/* 员工端：2个按钮时使用单列布局 */
+.worker-grid {
+  grid-template-columns: 1fr;
+}
+
 .action-item {
   background: white;
   border-radius: 12rpx;
-  padding: 24rpx;
+  padding: 28rpx;
   text-align: center;
   box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.08);
-  transition: transform 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .action-item:active {
   transform: scale(0.95);
+  box-shadow: 0 1rpx 4rpx rgba(0, 0, 0, 0.05);
 }
 
 .action-icon {

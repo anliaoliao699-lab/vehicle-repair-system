@@ -294,7 +294,9 @@ export class WorkOrdersService {
   async start(id: number, userId: number) {
     const workOrder = await this.findOne(id);
 
-    if (workOrder.assignedWorkerId !== userId) {
+    // ✅ 检查该员工是否被分配到此工单
+    const isAssigned = await this.checkWorkerAssigned(id, userId);
+    if (!isAssigned) {
       throw new ForbiddenException('您无权操作此工单');
     }
 
@@ -313,7 +315,9 @@ export class WorkOrdersService {
   async complete(id: number, userId: number) {
     const workOrder = await this.findOne(id);
 
-    if (workOrder.assignedWorkerId !== userId) {
+    // ✅ 检查该员工是否被分配到此工单
+    const isAssigned = await this.checkWorkerAssigned(id, userId);
+    if (!isAssigned) {
       throw new ForbiddenException('您无权操作此工单');
     }
 
@@ -327,13 +331,16 @@ export class WorkOrdersService {
       userId,
     });
 
-    await this.notificationsService.create({
-      userId: workOrder.vehicle.customerId,
-      type: 'work_order_completed' as any,
-      title: '工单已完成',
-      content: `您的车辆 ${workOrder.vehicle.plateNumber} 维修已完成,请验收`,
-      data: { workOrderId: id },
-    });
+    // ✅ 如果有车辆和车主信息，发送通知
+    if (workOrder.vehicle && workOrder.vehicle.customerId) {
+      await this.notificationsService.create({
+        userId: workOrder.vehicle.customerId,
+        type: 'work_order_completed' as any,
+        title: '工单已完成',
+        content: `您的车辆 ${workOrder.vehicle.plateNumber} 维修已完成,请验收`,
+        data: { workOrderId: id },
+      });
+    }
 
     return workOrder;
   }
@@ -369,6 +376,24 @@ export class WorkOrdersService {
   }
 
   // ==================== 派工相关方法 ====================
+
+  /**
+   * 检查员工是否被分配到指定工单
+   */
+  async checkWorkerAssigned(orderId: number, userId: number): Promise<boolean> {
+    try {
+      const result = await this.workOrderRepository.query(
+        `SELECT COUNT(*) as count
+         FROM work_order_workers
+         WHERE work_order_id = ? AND worker_id = ?`,
+        [orderId, userId]
+      );
+      return result[0]?.count > 0;
+    } catch (error) {
+      console.error('❌ 检查员工分配失败:', error);
+      return false;
+    }
+  }
 
   /**
    * 获取工单已分配的员工列表

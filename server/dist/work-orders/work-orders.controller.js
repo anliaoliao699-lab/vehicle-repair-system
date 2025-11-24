@@ -83,6 +83,9 @@ let WorkOrdersController = class WorkOrdersController {
             throw error;
         }
     }
+    async getWorkOrderImages(id) {
+        return this.workOrdersService.getOrderImages(+id);
+    }
     findOne(id) {
         return this.workOrdersService.findOne(+id);
     }
@@ -103,9 +106,6 @@ let WorkOrdersController = class WorkOrdersController {
     }
     close(id, req) {
         return this.workOrdersService.close(+id, req.user.userId);
-    }
-    async getWorkOrderImages(id) {
-        return this.workOrdersService.getOrderImages(+id);
     }
 };
 exports.WorkOrdersController = WorkOrdersController;
@@ -130,7 +130,6 @@ __decorate([
 __decorate([
     (0, common_1.Get)(),
     (0, swagger_1.ApiOperation)({ summary: '获取工单列表' }),
-    (0, common_1.Get)(),
     __param(0, (0, common_1.Query)()),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -164,6 +163,14 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], WorkOrdersController.prototype, "removeWorkerFromOrder", null);
 __decorate([
+    (0, swagger_1.ApiOperation)({ summary: '获取工单图片列表' }),
+    (0, common_1.Get)(':id/images'),
+    __param(0, (0, common_1.Param)('id')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String]),
+    __metadata("design:returntype", Promise)
+], WorkOrdersController.prototype, "getWorkOrderImages", null);
+__decorate([
     (0, common_1.Get)(':id'),
     (0, swagger_1.ApiOperation)({ summary: '获取工单详情' }),
     __param(0, (0, common_1.Param)('id')),
@@ -183,7 +190,7 @@ __decorate([
 ], WorkOrdersController.prototype, "update", null);
 __decorate([
     (0, common_1.Post)(':id/assign'),
-    (0, swagger_1.ApiOperation)({ summary: '分配工单给工人' }),
+    (0, swagger_1.ApiOperation)({ summary: '分配工单给员工' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Body)()),
     __param(2, (0, common_1.Request)()),
@@ -193,7 +200,7 @@ __decorate([
 ], WorkOrdersController.prototype, "assign", null);
 __decorate([
     (0, common_1.Post)(':id/start'),
-    (0, swagger_1.ApiOperation)({ summary: '工人开始工单' }),
+    (0, swagger_1.ApiOperation)({ summary: '员工开始工单' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -202,7 +209,7 @@ __decorate([
 ], WorkOrdersController.prototype, "start", null);
 __decorate([
     (0, common_1.Post)(':id/complete'),
-    (0, swagger_1.ApiOperation)({ summary: '工人完成工单' }),
+    (0, swagger_1.ApiOperation)({ summary: '员工完成工单' }),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
@@ -227,14 +234,6 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], WorkOrdersController.prototype, "close", null);
-__decorate([
-    (0, swagger_1.ApiOperation)({ summary: '获取工单图片列表' }),
-    (0, common_1.Get)(':id/images'),
-    __param(0, (0, common_1.Param)('id')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", Promise)
-], WorkOrdersController.prototype, "getWorkOrderImages", null);
 exports.WorkOrdersController = WorkOrdersController = __decorate([
     (0, swagger_1.ApiTags)('工单管理'),
     (0, common_1.Controller)('work-orders'),

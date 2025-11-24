@@ -31,6 +31,14 @@ export declare class WorkOrdersController {
         orderId: number;
         workerId: number;
     }>;
+    getWorkOrderImages(id: string): Promise<{
+        id: number;
+        type: import("../entities/photo.entity").PhotoType;
+        url: string;
+        thumbnailUrl: string;
+        uploadedBy: number;
+        createdAt: Date;
+    }[]>;
     findOne(id: string): Promise<import("../entities/work-order.entity").WorkOrder>;
     update(id: string, updateData: any, req: any): Promise<import("../entities/work-order.entity").WorkOrder>;
     assign(id: string, assignDto: AssignWorkOrderDto, req: any): Promise<{
@@ -43,12 +51,4 @@ export declare class WorkOrdersController {
     complete(id: string, req: any): Promise<import("../entities/work-order.entity").WorkOrder>;
     accept(id: string, req: any): Promise<import("../entities/work-order.entity").WorkOrder>;
     close(id: string, req: any): Promise<import("../entities/work-order.entity").WorkOrder>;
-    getWorkOrderImages(id: string): Promise<{
-        id: number;
-        type: import("../entities/photo.entity").PhotoType;
-        url: string;
-        thumbnailUrl: string;
-        uploadedBy: number;
-        createdAt: Date;
-    }[]>;
 }

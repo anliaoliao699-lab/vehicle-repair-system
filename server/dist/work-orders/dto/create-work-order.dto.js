@@ -41,6 +41,24 @@ __decorate([
 ], CreateWorkOrderDto.prototype, "estimatedCost", void 0);
 __decorate([
     (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateWorkOrderDto.prototype, "estimated_cost", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateWorkOrderDto.prototype, "actualCost", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
+    (0, class_validator_1.IsNumber)(),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateWorkOrderDto.prototype, "actual_cost", void 0);
+__decorate([
+    (0, swagger_1.ApiProperty)({ required: false }),
     (0, class_validator_1.IsDateString)(),
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", String)
@@ -51,10 +69,4 @@ __decorate([
     (0, class_validator_1.IsOptional)(),
     __metadata("design:type", Number)
 ], CreateWorkOrderDto.prototype, "priority", void 0);
-__decorate([
-    (0, swagger_1.ApiProperty)({ required: false }),
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", Number)
-], CreateWorkOrderDto.prototype, "actual_cost", void 0);
 //# sourceMappingURL=create-work-order.dto.js.map

@@ -3,7 +3,9 @@ export declare class CreateWorkOrderDto {
     vehicleId?: number;
     description?: string;
     estimatedCost?: number;
+    estimated_cost?: number;
+    actualCost?: number;
+    actual_cost?: number;
     estimatedCompletionTime?: string;
     priority?: number;
-    actual_cost?: number;
 }

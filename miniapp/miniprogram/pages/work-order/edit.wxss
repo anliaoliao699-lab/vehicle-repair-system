@@ -370,17 +370,19 @@
 }
 
 .upload-btn {
-  position: relative;
   width: 100%;
   padding-bottom: 100%;
   border-radius: 12rpx;
   background: #fafafa;
   border: 2rpx dashed #d0d0d0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  position: relative;
   transition: all 0.3s ease;
+}
+
+.upload-btn::before {
+  content: '';
+  display: block;
+  padding-bottom: 100%;
 }
 
 .upload-btn:active {
@@ -388,16 +390,28 @@
   background: #f0f4ff;
 }
 
+/* 确保内容居中显示 */
+.upload-icon,
+.upload-text {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 .upload-icon {
+  top: 50%;
+  transform: translate(-50%, -80%);
   font-size: 64rpx;
   color: #999999;
-  margin-bottom: 12rpx;
   line-height: 1;
 }
 
 .upload-text {
+  top: 50%;
+  transform: translate(-50%, 20%);
   font-size: 26rpx;
   color: #999999;
+  white-space: nowrap;
 }
 
 .upload-tip {

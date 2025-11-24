@@ -84,8 +84,8 @@
     </view>
   </view>
 
-  <!-- 创建工单浮动按钮 -->
-  <button class="fab-button" bindtap="navigateToCreate">
+  <!-- 创建工单浮动按钮 - 仅管理员可见 -->
+  <button class="fab-button" bindtap="navigateToCreate" wx:if="{{userRole === 'admin'}}">
     <text class="fab-icon">+</text>
   </button>
 </view>

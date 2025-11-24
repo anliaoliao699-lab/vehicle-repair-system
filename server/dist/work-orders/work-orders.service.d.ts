@@ -35,6 +35,7 @@ export declare class WorkOrdersService {
     complete(id: number, userId: number): Promise<WorkOrder>;
     accept(id: number, userId: number): Promise<WorkOrder>;
     close(id: number, userId: number): Promise<WorkOrder>;
+    checkWorkerAssigned(orderId: number, userId: number): Promise<boolean>;
     getAssignedWorkers(orderId: number): Promise<any>;
     assignWorkers(orderId: number, workerIds: number[], roles: {
         [key: number]: string;

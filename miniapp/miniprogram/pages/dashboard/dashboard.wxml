@@ -4,7 +4,7 @@
       <view class="avatar">{{user.name}}</view>
       <view class="info">
         <view class="name">{{user.name}}</view>
-
+        <view class="role">{{isAdmin ? '管理员' : isWorker ? '员工' : '用户'}}</view>
       </view>
     </view>
     <view class="logout-btn" bindtap="handleLogout">
@@ -12,32 +12,41 @@
     </view>
   </view>
 
+  <!-- 统计卡片 - 添加点击事件 -->
   <view class="stats-container">
-    <view class="stat-card">
+    <view class="stat-card" bindtap="navigateToOrders">
       <view class="stat-value">{{stats.totalOrders}}</view>
       <view class="stat-label">总工单</view>
     </view>
-    <view class="stat-card">
-      <view class="stat-value">{{stats.pendingOrders}}</view>
-      <view class="stat-label">待处理</view>
+    <view class="stat-card" bindtap="navigateToAssigned">
+      <view class="stat-value">{{stats.assignedOrders}}</view>
+      <view class="stat-label">已分配</view>
     </view>
-    <view class="stat-card">
+    <view class="stat-card" bindtap="navigateToCompleted">
       <view class="stat-value">{{stats.completedOrders}}</view>
       <view class="stat-label">已完成</view>
     </view>
   </view>
 
+  <!-- 快捷操作 -->
   <view class="quick-actions">
     <view class="section-title">快捷操作</view>
-    <view class="action-grid">
+    <view class="action-grid" wx:if="{{isAdmin}}">
+      <!-- 管理员：显示创建工单、工单列表、个人中心 -->
       <view class="action-item" bindtap="navigateToCreateOrder">
         <view class="action-text">创建工单</view>
       </view>
       <view class="action-item" bindtap="navigateToOrders">
         <view class="action-text">工单列表</view>
       </view>
-      <view class="action-item" bindtap="navigateToVehicles">
-        <view class="action-text">车辆管理</view>
+      <view class="action-item" bindtap="navigateToProfile">
+        <view class="action-text">个人中心</view>
+      </view>
+    </view>
+    <view class="action-grid worker-grid" wx:else>
+      <!-- 员工：只显示工单列表、个人中心 -->
+      <view class="action-item" bindtap="navigateToOrders">
+        <view class="action-text">工单列表</view>
       </view>
       <view class="action-item" bindtap="navigateToProfile">
         <view class="action-text">个人中心</view>

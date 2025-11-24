@@ -40,7 +40,8 @@ let WorkOrdersService = class WorkOrdersService {
             vehicleId: null,
             vehicleInfo: createDto.vehicle_info || 'N/A',
             description: createDto.description || null,
-            estimatedCost: createDto.estimatedCost || 0,
+            estimatedCost: createDto.estimatedCost || createDto.estimated_cost || 0,
+            actualCost: createDto.actualCost || createDto.actual_cost || 0,
             estimatedCompletionTime: createDto.estimatedCompletionTime ? new Date(createDto.estimatedCompletionTime) : null,
             priority: createDto.priority || 1,
             createdBy: userId,
@@ -247,7 +248,8 @@ let WorkOrdersService = class WorkOrdersService {
     }
     async start(id, userId) {
         const workOrder = await this.findOne(id);
-        if (workOrder.assignedWorkerId !== userId) {
+        const isAssigned = await this.checkWorkerAssigned(id, userId);
+        if (!isAssigned) {
             throw new common_1.ForbiddenException('您无权操作此工单');
         }
         workOrder.status = work_order_entity_1.WorkOrderStatus.IN_PROGRESS;
@@ -261,7 +263,8 @@ let WorkOrdersService = class WorkOrdersService {
     }
     async complete(id, userId) {
         const workOrder = await this.findOne(id);
-        if (workOrder.assignedWorkerId !== userId) {
+        const isAssigned = await this.checkWorkerAssigned(id, userId);
+        if (!isAssigned) {
             throw new common_1.ForbiddenException('您无权操作此工单');
         }
         workOrder.status = work_order_entity_1.WorkOrderStatus.COMPLETED;
@@ -272,13 +275,15 @@ let WorkOrdersService = class WorkOrdersService {
             details: `完成工单 ${workOrder.orderNo}`,
             userId,
         });
-        await this.notificationsService.create({
-            userId: workOrder.vehicle.customerId,
-            type: 'work_order_completed',
-            title: '工单已完成',
-            content: `您的车辆 ${workOrder.vehicle.plateNumber} 维修已完成,请验收`,
-            data: { workOrderId: id },
-        });
+        if (workOrder.vehicle && workOrder.vehicle.customerId) {
+            await this.notificationsService.create({
+                userId: workOrder.vehicle.customerId,
+                type: 'work_order_completed',
+                title: '工单已完成',
+                content: `您的车辆 ${workOrder.vehicle.plateNumber} 维修已完成,请验收`,
+                data: { workOrderId: id },
+            });
+        }
         return workOrder;
     }
     async accept(id, userId) {
@@ -302,6 +307,18 @@ let WorkOrdersService = class WorkOrdersService {
             userId,
         });
         return workOrder;
+    }
+    async checkWorkerAssigned(orderId, userId) {
+        try {
+            const result = await this.workOrderRepository.query(`SELECT COUNT(*) as count
+         FROM work_order_workers
+         WHERE work_order_id = ? AND worker_id = ?`, [orderId, userId]);
+            return result[0]?.count > 0;
+        }
+        catch (error) {
+            console.error('❌ 检查员工分配失败:', error);
+            return false;
+        }
     }
     async getAssignedWorkers(orderId) {
         try {

@@ -9,4 +9,12 @@ export declare class WorkItemsController {
         message: string;
         id: number;
     }>;
+    findByOrderIdWithPagination(workOrderId: string): Promise<{
+        items: import("../entities/work-item.entity").WorkItem[];
+        total: number;
+    }>;
+    getTotalCost(workOrderId: string): Promise<{
+        orderId: number;
+        totalCost: any;
+    }>;
 }

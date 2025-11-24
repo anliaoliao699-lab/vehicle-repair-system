@@ -12,38 +12,34 @@
       <text class="title-text">基本信息</text>
     </view>
 
+    <!-- 车主名字 - 调整到前面 -->
+    <view class="form-group">
+      <view class="label-row">
+        <text class="label required">车主名字</text>
+      </view>
+      <input
+        class="input full-width"
+        placeholder="请填写车主名字"
+        value="{{workOrder.description}}"
+        bindinput="onInput"
+        data-field="description"
+        placeholder-style="color: #ccc;"
+      />
+    </view>
+
     <!-- 车辆信息 -->
     <view class="form-group">
       <view class="label-row">
         <text class="label required">车辆信息</text>
       </view>
-      <input 
-        class="input full-width" 
-        placeholder="请输入车牌号或车辆型号" 
-        value="{{workOrder.vehicleInfo}}" 
-        bindinput="onInput" 
+      <input
+        class="input full-width"
+        placeholder="请输入车牌号或车辆型号"
+        value="{{workOrder.vehicleInfo}}"
+        bindinput="onInput"
         data-field="vehicleInfo"
         placeholder-style="color: #ccc;"
       />
-    </view>
-
-    <!-- 车主 -->
-    <view class="form-group">
-      <view class="label-row">
-        <text class="label required">车主</text>
-        <text class="char-count">{{workOrder.description ? workOrder.description.length : 0}}/500</text>
-      </view>
-      <textarea 
-        class="textarea" 
-        placeholder="请填写车主名字" 
-        value="{{workOrder.description}}" 
-        bindinput="onInput" 
-        data-field="description"
-        maxlength="500"
-        auto-height
-        show-confirm-bar="{{false}}"
-        placeholder-style="color: #ccc;"
-      ></textarea>
     </view>
   </view>
 
