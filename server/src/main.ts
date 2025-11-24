@@ -24,9 +24,9 @@ async function bootstrap() {
     });
     console.log('✅ CORS configured');
 
-    // 设置全局路由前缀
-    app.setGlobalPrefix('api');
-    console.log('✅ Global prefix /api configured');
+    // 设置全局路由前缀（微信云托管不需要）
+    // app.setGlobalPrefix('api');
+    // console.log('✅ Global prefix /api configured');
 
     // ✅ 健康检查路由（放在全局前缀之后）
     app.use('/health', (req, res) => {

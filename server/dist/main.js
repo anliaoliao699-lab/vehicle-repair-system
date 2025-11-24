@@ -34,7 +34,7 @@ async function bootstrap() {
                 res.status(405).json({ error: 'Method not allowed' });
             }
         });
-        console.log('✅ Health check endpoint configured');
+        console.log('✅ Health check endpoint configured at /health');
         const port = parseInt(process.env.PORT || '3000', 10);
         const host = '0.0.0.0';
         console.log(`\n🔄 Attempting to listen on ${host}:${port}...`);
@@ -46,6 +46,7 @@ async function bootstrap() {
         console.log(`📍 Server is listening on ${host}:${port}`);
         console.log(`🌐 Ready to accept connections`);
         console.log('📌 Health check endpoint: GET /health');
+        console.log('📌 API routes available at: GET /api/*');
         console.log('========================================');
         server.on('error', (err) => {
             console.error('❌ Server error event:', err);
