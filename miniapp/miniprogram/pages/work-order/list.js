@@ -27,10 +27,10 @@ Page({
         ],
         // 🔑 状态映射表
         statusColorMap: {
-            'new': '#2554b4ff',
-            'assigned': '#f37521ff',
+            'new': '#2c69e2ff',
+            'assigned': '#fc7a23ff',
             'in_progress': '#d863e3ff',
-            'completed': '#4caf50',
+            'completed': '#4fb252ff',
             'accepted': '#9c27b0',
             'paid': '#8bc34a',
             'closed': '#999999'

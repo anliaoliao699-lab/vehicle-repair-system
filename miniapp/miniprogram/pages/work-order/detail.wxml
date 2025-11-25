@@ -56,10 +56,7 @@
       <text class="info-value price">¥{{totalCostFixed || 0}}</text>
     </view>
 
-    <view class="info-row" wx:if="{{workOrder.actualCost > 0}}">
-      <text class="info-label">实际费用</text>
-      <text class="info-value price highlight">¥{{workOrder.actualCost}}</text>
-    </view>
+
 
     <view class="info-row">
       <text class="info-label">创建时间</text>
