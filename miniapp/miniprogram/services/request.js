@@ -3,13 +3,15 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.request = request;
 exports.get = get;
 exports.post = post;
-exports.put = put;           // 新增 put
-exports.patch = patch;       // 可用作 patch
+exports.put = put;
+exports.patch = patch;
 exports.deleteRequest = deleteRequest;
 exports.uploadFile = uploadFile;
 
+// ✅ 云托管配置
 const API_CONFIG = {
-    baseUrl: "https://vehicle-repair3-199253-5-1384604975.sh.run.tcloudbase.com",
+    envId: "vehicle-repair-5g5oqe5gf67b75cf",
+    serviceName: "vehicle-repair3",
     timeout: 30000,
 };
 
@@ -24,11 +26,9 @@ function request(url, options) {
         const method = options.method || "GET";
         const header = options.header || {};
         const data = options.data;
-        const timeout = options.timeout || API_CONFIG.timeout;
-        
-        const fullUrl = url.startsWith("http") ? url : API_CONFIG.baseUrl + url;
         
         const finalHeader = {
+            "X-WX-SERVICE": API_CONFIG.serviceName,
             "Content-Type": "application/json"
         };
         
@@ -41,14 +41,16 @@ function request(url, options) {
             finalHeader["Authorization"] = "Bearer " + token;
         }
         
-        console.log("请求:", { url: fullUrl, method: method, data: data });
+        console.log("请求:", { path: url, method: method, data: data });
         
-        wx.request({
-            url: fullUrl,
+        wx.cloud.callContainer({
+            config: {
+                env: API_CONFIG.envId
+            },
+            path: url,
             method: method,
             header: finalHeader,
             data: data,
-            timeout: timeout,
             success: function (res) {
                 console.log("响应:", res.data);
                 
@@ -95,13 +97,12 @@ function request(url, options) {
             },
             fail: function (err) {
                 console.error("请求失败:", err);
-                reject(new Error("网络请求失败: " + err.errMsg));
+                reject(new Error("网络请求失败: " + (err.errMsg || err.message || "未知错误")));
             },
         });
     });
 }
 
-// GET 请求
 function get(url, query) {
     let queryStr = "";
     if (query) {
@@ -117,47 +118,30 @@ function get(url, query) {
     return request(url + queryStr, { method: "GET" });
 }
 
-// POST 请求
 function post(url, data) {
     return request(url, { method: "POST", data: data });
 }
 
-// PUT 请求（用于更新工单）
 function put(url, data) {
     return request(url, { method: "PUT", data: data });
 }
 
-// PATCH 请求
 function patch(url, data) {
     return request(url, { method: "PATCH", data: data });
 }
 
-// DELETE 请求
 function deleteRequest(url) {
     return request(url, { method: "DELETE" });
 }
 
 /**
- * ✅ 修复后的 uploadFile 函数
- * 
- * 功能：上传文件到服务器
- * 
- * 参数说明：
- * @param {string} filePath - 文件路径（必填，来自 wx.chooseImage 或其他文件选择）
- * @param {string} relatedType - 关联类型（可选，如 'work_order'）
- * @param {number} relatedId - 关联ID（可选，如工单ID）
- * 
- * 调用示例：
- * ✅ 正确：await uploadFile(img.path, 'work_order', orderId)
- * ❌ 错误（旧方式）：await uploadFile({ filePath: img.path, url: '...', name: '...' })
- * 
- * 返回值：Promise，解析为 { url: '...', ... } 或完整的响应数据
+ * ✅ 云托管版本的 uploadFile 函数
+ * 使用微信云存储上传，然后保存记录到后端数据库
  */
 function uploadFile(filePath, relatedType, relatedId) {
     return new Promise(function (resolve, reject) {
-        // ✅ 参数验证：确保 filePath 是字符串
         if (typeof filePath !== 'string') {
-            reject(new Error(`filePath 必须是字符串，当前类型: ${typeof filePath}`));
+            reject(new Error("filePath 必须是字符串，当前类型: " + typeof filePath));
             return;
         }
         
@@ -165,64 +149,97 @@ function uploadFile(filePath, relatedType, relatedId) {
             reject(new Error('filePath 不能为空'));
             return;
         }
-        
-        const token = getToken();
-        const header = {};
-        
-        if (token) {
-            header["Authorization"] = "Bearer " + token;
-        }
-        
-        // ✅ 构建完整的上传 URL（支持关联类型和ID）
-        let uploadUrl = API_CONFIG.baseUrl + "/uploads";
-        if (relatedType) {
-            uploadUrl += "?relatedType=" + encodeURIComponent(relatedType);
-            if (relatedId) {
-                uploadUrl += "&relatedId=" + encodeURIComponent(String(relatedId));
-            }
-        }
-        
+
         console.log('📤 开始上传文件:', {
             filePath: filePath,
             relatedType: relatedType,
-            relatedId: relatedId,
-            uploadUrl: uploadUrl
+            relatedId: relatedId
         });
-        
-        wx.uploadFile({
-            url: uploadUrl,
+
+        // 生成唯一的云存储路径
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 8);
+        const extension = filePath.split('.').pop() || 'jpg';
+        const cloudPath = "uploads/" + timestamp + "_" + randomStr + "." + extension;
+
+        // 第一步：上传到微信云存储
+        wx.cloud.uploadFile({
+            cloudPath: cloudPath,
             filePath: filePath,
-            name: "file",
-            header: header,
-            success: function (res) {
-                console.log('📥 上传响应状态码:', res.statusCode);
-                console.log('📥 上传响应数据:', res.data);
+            success: function (uploadRes) {
+                console.log('☁️ 云存储上传成功:', uploadRes.fileID);
                 
-                if (res.statusCode === 200 || res.statusCode === 201) {
-                    try {
-                        const data = JSON.parse(res.data);
-                        console.log('✅ 上传成功，解析后数据:', data);
-                        
-                        // ✅ 支持两种响应格式
-                        if (data.code === 0 || data.code === undefined) {
-                            // 格式1：{ code: 0, data: { url: '...', ... } }
-                            // 格式2：{ url: '...', ... } 或其他直接返回数据
-                            resolve(data.data || data);
+                // 第二步：获取临时访问链接
+                wx.cloud.getTempFileURL({
+                    fileList: [uploadRes.fileID],
+                    success: function (urlRes) {
+                        if (urlRes.fileList && urlRes.fileList[0] && urlRes.fileList[0].tempFileURL) {
+                            const fileUrl = urlRes.fileList[0].tempFileURL;
+                            console.log('🔗 获取临时链接成功:', fileUrl);
+                            
+                            // ✅ 第三步：调用后端保存图片记录到数据库
+                            const token = getToken();
+                            const header = {
+                                "X-WX-SERVICE": API_CONFIG.serviceName,
+                                "Content-Type": "application/json"
+                            };
+                            if (token) {
+                                header["Authorization"] = "Bearer " + token;
+                            }
+
+                            wx.cloud.callContainer({
+                                config: {
+                                    env: API_CONFIG.envId
+                                },
+                                path: "/uploads/cloud",
+                                method: "POST",
+                                header: header,
+                                data: {
+                                    fileID: uploadRes.fileID,
+                                    url: fileUrl,
+                                    cloudPath: cloudPath,
+                                    relatedType: relatedType || null,
+                                    relatedId: relatedId || null
+                                },
+                                success: function (res) {
+                                    console.log('✅ 后端保存图片记录成功:', res.data);
+                                    if (res.statusCode === 200 || res.statusCode === 201) {
+                                        const data = res.data;
+                                        resolve(data.data || data);
+                                    } else {
+                                        // 即使后端保存失败，也返回云存储的 URL
+                                        console.warn('⚠️ 后端保存失败，使用云存储URL');
+                                        resolve({
+                                            url: fileUrl,
+                                            fileID: uploadRes.fileID,
+                                            cloudPath: cloudPath
+                                        });
+                                    }
+                                },
+                                fail: function (err) {
+                                    // 即使通知后端失败，也返回云存储的 URL
+                                    console.warn('⚠️ 通知后端失败，使用云存储URL:', err);
+                                    resolve({
+                                        url: fileUrl,
+                                        fileID: uploadRes.fileID,
+                                        cloudPath: cloudPath
+                                    });
+                                }
+                            });
                         } else {
-                            reject(new Error(data.message || "上传失败"));
+                            reject(new Error("获取文件临时链接失败"));
                         }
-                    } catch (parseErr) {
-                        console.error('❌ JSON 解析失败:', parseErr);
-                        reject(new Error("上传响应解析失败: " + parseErr.message));
+                    },
+                    fail: function (err) {
+                        console.error('❌ 获取临时链接失败:', err);
+                        reject(new Error("获取文件链接失败: " + (err.errMsg || "未知错误")));
                     }
-                } else {
-                    reject(new Error("上传失败，状态码: " + res.statusCode + "，响应: " + res.data));
-                }
+                });
             },
             fail: function (err) {
-                console.error('❌ 上传请求失败:', err);
+                console.error('❌ 云存储上传失败:', err);
                 reject(new Error("文件上传失败: " + (err.errMsg || err.message || "未知错误")));
-            },
+            }
         });
     });
 }

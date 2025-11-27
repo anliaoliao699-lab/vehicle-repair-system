@@ -35,6 +35,10 @@ export class Upload {
   @Column({ nullable: true })
   uploadedBy: number;
 
+  // ✅ 新增：微信云存储的 fileID
+  @Column({ nullable: true })
+  fileId: string;
+
   @CreateDateColumn()
   createdAt: Date;
 

@@ -311,7 +311,7 @@ Page({
   },
 
   /**
-   * 删除维修项目
+   * ✅ 删除维修项目 - 使用正确的路径
    */
   async deleteWorkItem(e) {
     const id = e.currentTarget.dataset.id;
@@ -322,7 +322,8 @@ Page({
       success: async (res) => {
         if (res.confirm) {
           try {
-            await deleteRequest(`/work-items/${id}`);
+            // ✅ 正确路径：/work-orders/items/{id}
+            await deleteRequest(`/work-orders/items/${id}`);
             wx.showToast({ title: '删除成功', icon: 'success' });
             this.loadWorkItems();
           } catch (err) {
@@ -621,17 +622,14 @@ Page({
 
     console.log('准备派工:', { workerIds, roles });
     
-    // 调用新的派工接口
+    // ✅ 改用 post 函数（使用 wx.cloud.callContainer）
     await this.assignWorkersNew(workerIds, roles);
   },
 
   /**
-   * 新的派工接口
+   * ✅ 新的派工接口 - 使用 wx.cloud.callContainer
    */
   async assignWorkersNew(workerIds, roles) {
-    const API_BASE_URL = 'https://vehicle-repair3-199253-5-1384604975.sh.run.tcloudbase.com';
-    const token = wx.getStorageSync('token');
-
     if (!this.data.orderId) {
       wx.showToast({ title: '工单ID缺失', icon: 'error' });
       return;
@@ -640,24 +638,10 @@ Page({
     this.setData({ assignLoading: true });
 
     try {
-      const res = await new Promise((resolve, reject) => {
-        wx.request({
-          url: `${API_BASE_URL}/work-orders/${this.data.orderId}/workers`,
-          method: 'POST',
-          header: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          },
-          data: { workerIds, roles },
-          success: (res) => {
-            if (res.statusCode === 200 || res.statusCode === 201) {
-              resolve(res.data);
-            } else {
-              reject(new Error(res.data?.message || '派工失败'));
-            }
-          },
-          fail: reject
-        });
+      // ✅ 使用 post 函数，走 wx.cloud.callContainer
+      const res = await post(`/work-orders/${this.data.orderId}/workers`, { 
+        workerIds, 
+        roles 
       });
 
       console.log('派工成功:', res);
@@ -684,7 +668,7 @@ Page({
   },
 
   /**
-   * 移除派工员工
+   * ✅ 移除派工员工 - 使用 wx.cloud.callContainer
    */
   async removeWorker(e) {
     const workerId = e.currentTarget.dataset.id;
@@ -695,26 +679,8 @@ Page({
       success: async (res) => {
         if (res.confirm) {
           try {
-            const API_BASE_URL = 'https://vehicle-repair3-199253-5-1384604975.sh.run.tcloudbase.com';
-            const token = wx.getStorageSync('token');
-
-            await new Promise((resolve, reject) => {
-              wx.request({
-                url: `${API_BASE_URL}/work-orders/${this.data.orderId}/workers/${workerId}`,
-                method: 'DELETE',
-                header: {
-                  Authorization: `Bearer ${token}`
-                },
-                success: (res) => {
-                  if (res.statusCode === 200) {
-                    resolve(res.data);
-                  } else {
-                    reject(new Error('移除失败'));
-                  }
-                },
-                fail: reject
-              });
-            });
+            // ✅ 使用 deleteRequest 函数，走 wx.cloud.callContainer
+            await deleteRequest(`/work-orders/${this.data.orderId}/workers/${workerId}`);
 
             wx.showToast({ title: '移除成功', icon: 'success' });
             this.loadAssignedWorkers();

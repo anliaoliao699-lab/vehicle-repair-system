@@ -125,7 +125,7 @@ Page({
             success: (res) => {
                 if (res.confirm) {
                     wx.setClipboardData({
-                        data: '400-123-4567',
+                        data: '18246056923',
                         success: () => {
                             wx.showToast({
                                 title: '电话已复制',

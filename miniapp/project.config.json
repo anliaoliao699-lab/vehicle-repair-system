@@ -2,6 +2,8 @@
   "projectname": "vehicle-repair-system",
   "compileType": "miniprogram",
   "appid": "wx8a7733737e087689",
+  "cloudfunctionRoot": "",
+  "cloudbaseRoot": "cloudbase/",
   "setting": {
     "es6": true,
     "postcss": true,

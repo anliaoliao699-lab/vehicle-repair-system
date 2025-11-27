@@ -3,12 +3,15 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { WorkItem } from '../entities/work-item.entity';
+import { WorkOrder } from '../entities/work-order.entity';
 
 @Injectable()
 export class WorkItemsService {
   constructor(
     @InjectRepository(WorkItem)
     private workItemRepository: Repository<WorkItem>,
+    @InjectRepository(WorkOrder)
+    private workOrderRepository: Repository<WorkOrder>,
   ) {}
 
   async create(workOrderId: number, createDto: any) {
@@ -22,27 +25,29 @@ export class WorkItemsService {
       throw new BadRequestException('项目费用必须大于0');
     }
 
-    // 字段名与 WorkItem 实体一致，数据库字段为 order_id，实体为 orderId
     const workItem = this.workItemRepository.create({
-      
-  orderId: workOrderId,
-  name: createDto.item_name,
-  description: createDto.description,
-  price: parseFloat(createDto.price),
-  status: createDto.status || 'pending'
+      orderId: workOrderId,
+      name: createDto.item_name,
+      description: createDto.description,
+      price: parseFloat(createDto.price),
+      status: createDto.status || 'pending'
     });
-    return this.workItemRepository.save(workItem);
+    
+    const saved = await this.workItemRepository.save(workItem);
+    
+    // ✅ 添加维修项后自动更新工单费用
+    await this.updateWorkOrderCost(workOrderId);
+    
+    return saved;
   }
 
   async findByWorkOrder(workOrderId: number) {
-    // 字段名与 WorkItem 实体一致
     return this.workItemRepository.find({
       where: { orderId: workOrderId },
       order: { createdAt: 'DESC' },
     });
   }
 
-  // ✅ 新增：获取工作项列表（支持分页，用于小程序查询）
   async findByOrderId(orderId: number, page: number = 1, limit: number = 20) {
     const skip = (page - 1) * limit;
 
@@ -59,15 +64,14 @@ export class WorkItemsService {
     };
   }
 
-  // ✅ 新增：计算工单的总费用
-  async getTotalCostByOrderId(orderId: number) {
+  async getTotalCostByOrderId(orderId: number): Promise<number> {
     const result = await this.workItemRepository
       .createQueryBuilder('work_item')
       .select('SUM(work_item.price)', 'total')
       .where('work_item.orderId = :orderId', { orderId })
       .getRawOne();
 
-    return result?.total || 0;
+    return parseFloat(result?.total) || 0;
   }
 
   async update(id: number, updateData: Partial<WorkItem>) {
@@ -76,12 +80,15 @@ export class WorkItemsService {
       throw new NotFoundException('维修项不存在');
     }
 
-    // ✅ 如果更新价格，验证价格
     if (updateData.price !== undefined && parseFloat(updateData.price as any) <= 0) {
       throw new BadRequestException('项目费用必须大于0');
     }
 
     await this.workItemRepository.update(id, updateData);
+    
+    // ✅ 更新维修项后自动更新工单费用
+    await this.updateWorkOrderCost(workItem.orderId);
+    
     return this.workItemRepository.findOne({ where: { id } });
   }
 
@@ -90,7 +97,32 @@ export class WorkItemsService {
     if (!workItem) {
       throw new NotFoundException('维修项不存在');
     }
+    
+    const orderId = workItem.orderId;
+    
     await this.workItemRepository.remove(workItem);
+    
+    // ✅ 删除维修项后自动更新工单费用
+    await this.updateWorkOrderCost(orderId);
+    
     return { message: '删除成功', id };
+  }
+
+  /**
+   * ✅ 新增：自动更新工单的费用
+   */
+  private async updateWorkOrderCost(orderId: number) {
+    try {
+      const totalCost = await this.getTotalCostByOrderId(orderId);
+      
+      // 更新工单的 actual_cost 字段
+      await this.workOrderRepository.update(orderId, {
+        actualCost: totalCost,
+      });
+      
+      console.log(`✅ 工单 ${orderId} 费用已更新为: ${totalCost}`);
+    } catch (error) {
+      console.error(`❌ 更新工单 ${orderId} 费用失败:`, error);
+    }
   }
 }

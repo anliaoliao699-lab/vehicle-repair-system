@@ -54,12 +54,20 @@ export class UploadsController {
   @Get()
   @ApiOperation({ summary: '获取上传记录列表' })
   async findAll(@Query() query: any) {
-    // 如果需要，也可以在这里将列表的 URL 替换为镜像桶签名 URL
     const uploads = await this.uploadsService.findAll(query);
-    return uploads.map(item => ({
-      ...item,
-      url: this.mirrorOssClient.signatureUrl(`uploads/${item.filename}`, { expires: 3600 }),
-    }));
+    return uploads.map(item => {
+      // 如果是云存储的 URL，直接返回；否则生成签名 URL
+      if (item.url && item.url.includes('cloud://')) {
+        return item;
+      }
+      if (item.url && item.url.includes('tcb.qcloud.la')) {
+        return item;
+      }
+      return {
+        ...item,
+        url: this.mirrorOssClient.signatureUrl(`uploads/${item.filename}`, { expires: 3600 }),
+      };
+    });
   }
 
   @Get(':id')
@@ -67,6 +75,11 @@ export class UploadsController {
   async findOne(@Param('id') id: string) {
     const upload = await this.uploadsService.findOne(+id);
     if (!upload) return null;
+
+    // 如果是云存储的 URL，直接返回
+    if (upload.url && (upload.url.includes('cloud://') || upload.url.includes('tcb.qcloud.la'))) {
+      return upload;
+    }
 
     return {
       ...upload,
@@ -109,6 +122,48 @@ export class UploadsController {
       return upload;
     } catch (error) {
       console.error('上传失败:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * ✅ 新增：保存微信云存储的图片记录
+   * 前端上传到云存储后，调用此接口保存记录到数据库
+   */
+  @Post('cloud')
+  @ApiOperation({ summary: '保存云存储图片记录' })
+  async saveCloudFile(
+    @Body() body: {
+      fileID: string;
+      url: string;
+      cloudPath: string;
+      relatedType?: string;
+      relatedId?: number;
+    },
+  ) {
+    console.log('📥 收到云存储图片保存请求:', body);
+
+    try {
+      // 从 cloudPath 提取文件名
+      const filename = body.cloudPath || body.fileID.split('/').pop() || `cloud_${Date.now()}.jpg`;
+      
+      // 保存到数据库
+      const upload = await this.uploadsService.create({
+        filename: filename,
+        originalName: filename,
+        mimeType: 'image/jpeg', // 默认类型
+        size: 0, // 云存储不提供大小信息
+        url: body.url, // 云存储的临时 URL
+        fileId: body.fileID, // ✅ 保存 fileID，方便后续获取新的临时链接
+        relatedType: body.relatedType || null,
+        relatedId: body.relatedId || null,
+      });
+
+      console.log('✅ 云存储图片记录已保存:', upload);
+
+      return upload;
+    } catch (error) {
+      console.error('❌ 保存云存储图片记录失败:', error);
       throw error;
     }
   }
