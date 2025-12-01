@@ -297,12 +297,13 @@ Page({
       console.log('📤 发送维修项目数据:', itemPayload);
 
       await post(`/work-orders/${orderId}/items`, itemPayload);
-      
+
       wx.hideLoading();
       wx.showToast({ title: '添加成功', icon: 'success' });
-      
+
       this.closeWorkItemForm();
       this.loadWorkItems();
+      this.loadOrderDetail();  // ✅ 重新加载工单详情以获取更新后的费用
     } catch (err) {
       wx.hideLoading();
       console.error('❌ 添加项目失败:', err);
@@ -326,6 +327,7 @@ Page({
             await deleteRequest(`/work-orders/items/${id}`);
             wx.showToast({ title: '删除成功', icon: 'success' });
             this.loadWorkItems();
+            this.loadOrderDetail();  // ✅ 重新加载工单详情以获取更新后的费用
           } catch (err) {
             console.error('删除失败:', err);
             wx.showToast({ title: '删除失败', icon: 'error' });
