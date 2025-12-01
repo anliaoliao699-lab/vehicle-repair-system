@@ -40,9 +40,24 @@
       <text class="forgot-link" bindtap="handleForgotPassword">忘记密码？</text>
     </view>
 
+    <!-- ✅ 新增：隐私政策勾选框 -->
+    <view class="agreement-area">
+      <view class="checkbox-wrapper" bindtap="toggleAgreement">
+        <view class="checkbox {{agreedToTerms ? 'checked' : ''}}">
+          <text wx:if="{{agreedToTerms}}">✓</text>
+        </view>
+      </view>
+      <view class="agreement-text">
+        <text>我已阅读并同意</text>
+        <text class="link-text" catchtap="showServiceAgreement">《用户服务协议》</text>
+        <text>和</text>
+        <text class="link-text" catchtap="showPrivacyPolicy">《隐私政策》</text>
+      </view>
+    </view>
+
     <button
       type="primary"
-      class="login-btn"
+      class="login-btn {{!agreedToTerms ? 'disabled' : ''}}"
       bindtap="handleLogin"
       disabled="{{loading}}"
     >
@@ -56,6 +71,156 @@
   </view>
 
   <view class="footer-tip">
-    登录即表示同意《服务条款》和《隐私政策》
+    请仔细阅读协议内容后勾选同意
+  </view>
+</view>
+
+<!-- ✅ 用户服务协议弹窗 -->
+<view class="modal-mask" wx:if="{{showServiceModal}}" bindtap="closeServiceModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">用户服务协议</text>
+      <view class="modal-close" bindtap="closeServiceModal">×</view>
+    </view>
+    <scroll-view class="modal-body" scroll-y>
+      <view class="policy-content">
+        <view class="policy-section">
+          <view class="policy-title">一、服务条款的确认和接纳</view>
+          <view class="policy-text">欢迎使用"维修服务系统"小程序（以下简称"本小程序"）。在使用本小程序前，请您仔细阅读本协议。当您使用本小程序时，即表示您已充分阅读、理解并同意接受本协议的全部内容。</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">二、服务内容</view>
+          <view class="policy-text">本小程序提供车辆维修预约、工单管理、维修进度查询等服务。具体服务内容以本小程序实际提供的为准。我们有权随时变更、中断或终止部分或全部服务，无需另行通知。</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">三、用户注册与账号管理</view>
+          <view class="policy-text">1. 用户需使用真实、准确的个人信息进行注册。</view>
+          <view class="policy-text">2. 用户应妥善保管账号和密码，因账号密码保管不善导致的损失由用户自行承担。</view>
+          <view class="policy-text">3. 用户不得将账号转让、出借给他人使用。</view>
+          <view class="policy-text">4. 如发现账号被盗用，请立即联系我们。</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">四、用户行为规范</view>
+          <view class="policy-text">用户在使用本小程序时，应遵守中华人民共和国相关法律法规，不得利用本小程序从事违法违规活动，不得发布违法、违规、虚假信息。</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">五、知识产权</view>
+          <view class="policy-text">本小程序的所有内容，包括但不限于文字、图片、软件、音频、视频等，均受著作权法和其他知识产权法律法规的保护。未经书面授权，不得以任何形式复制、传播、展示、修改本小程序的任何内容。</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">六、免责声明</view>
+          <view class="policy-text">1. 因不可抗力或其他非我方原因导致的服务中断，我方不承担责任。</view>
+          <view class="policy-text">2. 用户因使用本小程序而产生的任何纠纷，应与相关方自行协商解决。</view>
+          <view class="policy-text">3. 对于用户发布的信息的真实性、合法性，我方不承担审核义务。</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">七、协议修改</view>
+          <view class="policy-text">我们有权随时修改本协议，修改后的协议将在本小程序上公布。如您继续使用本小程序，即表示您同意修改后的协议。</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">八、联系方式</view>
+          <view class="policy-text">如有任何问题，请联系我们：</view>
+          <view class="policy-text">电话：18246056923</view>
+          <view class="policy-text">邮箱：2419196159@qq.com</view>
+        </view>
+        
+        <view class="policy-update">本协议最后更新日期：2025年11月28日</view>
+      </view>
+    </scroll-view>
+    <view class="modal-footer">
+      <button class="modal-btn" bindtap="closeServiceModal">我已阅读</button>
+    </view>
+  </view>
+</view>
+
+<!-- ✅ 隐私政策弹窗 -->
+<view class="modal-mask" wx:if="{{showPrivacyModal}}" bindtap="closePrivacyModal">
+  <view class="modal-content" catchtap="">
+    <view class="modal-header">
+      <text class="modal-title">隐私政策</text>
+      <view class="modal-close" bindtap="closePrivacyModal">×</view>
+    </view>
+    <scroll-view class="modal-body" scroll-y>
+      <view class="policy-content">
+        <view class="policy-intro">"维修服务系统"小程序（以下简称"我们"）非常重视用户的隐私保护。本隐私政策旨在向您说明我们如何收集、使用、存储和保护您的个人信息。请您在使用我们的服务前，仔细阅读本政策。</view>
+        
+        <view class="policy-section">
+          <view class="policy-title">一、我们收集的信息</view>
+          <view class="policy-text">为了向您提供服务，我们可能会收集以下信息：</view>
+          <view class="policy-text">1. 注册信息：手机号码、密码（加密存储）</view>
+          <view class="policy-text">2. 车辆信息：车牌号、车型等维修相关信息</view>
+          <view class="policy-text">3. 工单信息：维修项目、维修记录、维修图片</view>
+          <view class="policy-text">4. 设备信息：设备型号、操作系统版本（用于优化服务）</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">二、信息的使用目的</view>
+          <view class="policy-text">我们收集您的信息用于以下目的：</view>
+          <view class="policy-text">1. 提供维修预约、工单管理等核心服务</view>
+          <view class="policy-text">2. 验证您的身份，保障账号安全</view>
+          <view class="policy-text">3. 向您发送维修进度通知</view>
+          <view class="policy-text">4. 改进和优化我们的服务</view>
+          <view class="policy-text">5. 遵守法律法规的要求</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">三、信息的存储与保护</view>
+          <view class="policy-text">1. 您的信息存储在中国境内的安全服务器上。</view>
+          <view class="policy-text">2. 我们采用加密技术保护您的密码等敏感信息。</view>
+          <view class="policy-text">3. 我们建立了严格的数据访问权限控制机制。</view>
+          <view class="policy-text">4. 除法律要求或您的授权外，我们不会向第三方披露您的信息。</view>
+          <view class="policy-text">5. 您的个人信息将在您注销账号后删除，法律另有规定的除外。</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">四、信息共享</view>
+          <view class="policy-text">除以下情况外，我们不会与任何第三方共享您的个人信息：</view>
+          <view class="policy-text">1. 获得您的明确同意</view>
+          <view class="policy-text">2. 法律法规要求</view>
+          <view class="policy-text">3. 政府部门依法要求</view>
+          <view class="policy-text">4. 维护公共利益所必需</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">五、您的权利</view>
+          <view class="policy-text">您对您的个人信息享有以下权利：</view>
+          <view class="policy-text">1. 查询和访问您的个人信息</view>
+          <view class="policy-text">2. 更正或更新您的个人信息</view>
+          <view class="policy-text">3. 删除您的个人信息</view>
+          <view class="policy-text">4. 撤回您的授权同意</view>
+          <view class="policy-text">5. 注销您的账号</view>
+          <view class="policy-text">如需行使上述权利，请联系我们。</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">六、未成年人保护</view>
+          <view class="policy-text">本小程序主要面向成年人提供服务。如果您是未成年人，请在监护人的指导下阅读本政策并使用我们的服务。</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">七、政策更新</view>
+          <view class="policy-text">我们可能会不定期更新本隐私政策。更新后的政策将在本小程序上公布，请您定期查阅。如您在政策更新后继续使用我们的服务，即表示您同意更新后的政策。</view>
+        </view>
+        
+        <view class="policy-section">
+          <view class="policy-title">八、联系我们</view>
+          <view class="policy-text">如您对本隐私政策有任何疑问或建议，请通过以下方式联系我们：</view>
+          <view class="policy-text">电话：18246056923</view>
+          <view class="policy-text">邮箱：2419196159@qq.com</view>
+        </view>
+        
+        <view class="policy-update">本隐私政策最后更新日期：2025年11月28日</view>
+      </view>
+    </scroll-view>
+    <view class="modal-footer">
+      <button class="modal-btn" bindtap="closePrivacyModal">我已阅读</button>
+    </view>
   </view>
 </view>

@@ -8,6 +8,10 @@ Page({
         password: '',
         loading: false,
         showPassword: false,
+        // ✅ 新增：隐私政策相关
+        agreedToTerms: false,  // 用户是否同意协议
+        showPrivacyModal: false,  // 显示隐私政策弹窗
+        showServiceModal: false,  // 显示用户协议弹窗
     },
 
     onLoad() {
@@ -37,8 +41,45 @@ Page({
         });
     },
 
+    // ✅ 新增：切换同意状态
+    toggleAgreement() {
+        this.setData({
+            agreedToTerms: !this.data.agreedToTerms,
+        });
+    },
+
+    // ✅ 新增：显示用户服务协议
+    showServiceAgreement() {
+        this.setData({ showServiceModal: true });
+    },
+
+    // ✅ 新增：关闭用户服务协议
+    closeServiceModal() {
+        this.setData({ showServiceModal: false });
+    },
+
+    // ✅ 新增：显示隐私政策
+    showPrivacyPolicy() {
+        this.setData({ showPrivacyModal: true });
+    },
+
+    // ✅ 新增：关闭隐私政策
+    closePrivacyModal() {
+        this.setData({ showPrivacyModal: false });
+    },
+
     handleLogin() {
-        const { phone, password } = this.data;
+        const { phone, password, agreedToTerms } = this.data;
+
+        // ✅ 新增：检查是否同意协议
+        if (!agreedToTerms) {
+            wx.showToast({
+                title: '请先阅读并同意用户协议和隐私政策',
+                icon: 'none',
+                duration: 2000,
+            });
+            return;
+        }
 
         if (!phone || !password) {
             wx.showToast({

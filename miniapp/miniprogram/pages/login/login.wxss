@@ -126,3 +126,334 @@
   color: rgba(255, 255, 255, 0.8);
   margin-top: 60rpx;
 }
+
+/* ✅ 以下样式需要添加到 login.wxss 文件末尾 */
+
+/* 隐私政策勾选区域 */
+.agreement-area {
+  display: flex;
+  align-items: flex-start;
+  margin: 30rpx 0;
+  padding: 0 10rpx;
+}
+
+.checkbox-wrapper {
+  padding: 6rpx;
+  margin-right: 16rpx;
+}
+
+.checkbox {
+  width: 40rpx;
+  height: 40rpx;
+  border: 2rpx solid #ddd;
+  border-radius: 6rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28rpx;
+  color: #fff;
+  background-color: #fff;
+}
+
+.checkbox.checked {
+  background-color: #667eea;
+  border-color: #667eea;
+}
+
+.agreement-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.agreement-text .link-text {
+  color: #667eea;
+}
+
+/* 登录按钮禁用样式 */
+.login-btn.disabled {
+  opacity: 0.6;
+}
+
+/* 弹窗遮罩 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 弹窗内容 */
+.modal-content {
+  width: 85%;
+  max-height: 80vh;
+  background-color: #fff;
+  border-radius: 20rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 弹窗头部 */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 30rpx;
+  border-bottom: 1rpx solid #eee;
+}
+
+.modal-title {
+  font-size: 34rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.modal-close {
+  font-size: 48rpx;
+  color: #999;
+  line-height: 1;
+  padding: 10rpx;
+}
+
+/* 弹窗内容区域 */
+.modal-body {
+  flex: 1;
+  max-height: 60vh;
+  padding: 30rpx;
+}
+
+.policy-content {
+  font-size: 28rpx;
+  color: #333;
+  line-height: 1.8;
+}
+
+.policy-intro {
+  margin-bottom: 30rpx;
+  color: #666;
+}
+
+.policy-section {
+  margin-bottom: 30rpx;
+}
+
+.policy-title {
+  font-size: 30rpx;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 16rpx;
+}
+
+.policy-text {
+  color: #666;
+  white-space: pre-wrap;
+}
+
+.policy-update {
+  margin-top: 40rpx;
+  padding-top: 20rpx;
+  border-top: 1rpx solid #eee;
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+}
+
+/* 弹窗底部 */
+.modal-footer {
+  padding: 20rpx 30rpx 30rpx;
+  border-top: 1rpx solid #eee;
+}
+
+.modal-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  background-color: #667eea;
+  color: #fff;
+  font-size: 32rpx;
+  border-radius: 44rpx;
+  border: none;
+}
+
+.modal-btn::after {
+  border: none;
+}
+
+
+/* 隐私政策勾选区域 */
+.agreement-area {
+  display: flex;
+  align-items: flex-start;
+  margin: 30rpx 0;
+  padding: 0 10rpx;
+}
+
+.checkbox-wrapper {
+  padding: 6rpx;
+  margin-right: 16rpx;
+  flex-shrink: 0;
+}
+
+.checkbox {
+  width: 36rpx;
+  height: 36rpx;
+  border: 2rpx solid #ddd;
+  border-radius: 6rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: #fff;
+  background-color: #fff;
+}
+
+.checkbox.checked {
+  background-color: #667eea;
+  border-color: #667eea;
+}
+
+.agreement-text {
+  flex: 1;
+  font-size: 26rpx;
+  color: #666;
+  line-height: 1.6;
+}
+
+.agreement-text .link-text {
+  color: #667eea;
+}
+
+/* 登录按钮禁用样式 */
+.login-btn.disabled {
+  opacity: 0.6;
+}
+
+/* 弹窗遮罩 */
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 弹窗内容 */
+.modal-content {
+  width: 88%;
+  max-height: 75vh;
+  background-color: #fff;
+  border-radius: 24rpx;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10rpx 40rpx rgba(0, 0, 0, 0.15);
+}
+
+/* 弹窗头部 */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 36rpx 40rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  background-color: #fafafa;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: 600;
+  color: #333;
+}
+
+.modal-close {
+  font-size: 44rpx;
+  color: #999;
+  line-height: 1;
+  padding: 10rpx;
+  margin-right: -10rpx;
+}
+
+/* 弹窗内容区域 */
+.modal-body {
+  flex: 1;
+  max-height: 55vh;
+  padding: 0;
+}
+
+.policy-content {
+  padding: 40rpx;
+}
+
+.policy-intro {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.8;
+  margin-bottom: 40rpx;
+  text-align: justify;
+}
+
+.policy-section {
+  margin-bottom: 40rpx;
+}
+
+.policy-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20rpx;
+  padding-left: 20rpx;
+  border-left: 6rpx solid #667eea;
+}
+
+.policy-text {
+  font-size: 28rpx;
+  color: #666;
+  line-height: 1.9;
+  text-align: justify;
+  padding-left: 26rpx;
+}
+
+.policy-update {
+  margin-top: 50rpx;
+  padding-top: 30rpx;
+  border-top: 1rpx solid #f0f0f0;
+  font-size: 24rpx;
+  color: #999;
+  text-align: center;
+}
+
+/* 弹窗底部 */
+.modal-footer {
+  padding: 24rpx 40rpx 40rpx;
+  background-color: #fff;
+}
+
+.modal-btn {
+  width: 100%;
+  height: 88rpx;
+  line-height: 88rpx;
+  background: linear-gradient(135deg, #667eea 0%, #667eea 100%);
+  color: #fff;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 44rpx;
+  border: none;
+  box-shadow: 0 6rpx 20rpx rgba(37, 84, 204, 0.3);
+}
+
+.modal-btn::after {
+  border: none;
+}

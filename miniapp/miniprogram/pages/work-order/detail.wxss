@@ -466,7 +466,7 @@
 .btn-complete {
   width: 100%;
   padding: 28rpx;
-  background: linear-gradient(135deg, #07c160 0%, #06ae56 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: #fff;
   border-radius: 12rpx;
   border: none;
@@ -476,5 +476,5 @@
   align-items: center;
   justify-content: center;
   gap: 12rpx;
-  box-shadow: 0 4rpx 12rpx rgba(7, 193, 96, 0.3);
+  box-shadow: 0 4rpx 12rpx rgba(15, 103, 236, 0.3);
 }

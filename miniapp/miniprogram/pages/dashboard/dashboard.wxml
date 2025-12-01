@@ -12,11 +12,12 @@
     </view>
   </view>
 
-  <!-- 统计卡片 - 添加点击事件 -->
+  <!-- 统计卡片 - 添加待分配 -->
   <view class="stats-container">
-    <view class="stat-card" bindtap="navigateToOrders">
-      <view class="stat-value">{{stats.totalOrders}}</view>
-      <view class="stat-label">总工单</view>
+    <!-- ✅ 新增：待分配 -->
+    <view class="stat-card pending" bindtap="navigateToPending">
+      <view class="stat-value">{{stats.pendingOrders}}</view>
+      <view class="stat-label">待分配</view>
     </view>
     <view class="stat-card" bindtap="navigateToAssigned">
       <view class="stat-value">{{stats.assignedOrders}}</view>

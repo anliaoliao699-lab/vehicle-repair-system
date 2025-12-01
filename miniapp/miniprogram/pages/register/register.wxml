@@ -106,10 +106,6 @@
         <text class="desc-icon">🔧</text>
         <text class="desc-text">员工：可接单、处理维修工单、更新工单状态</text>
       </view>
-      <view class="desc-item" wx:if="{{role === 'owner'}}">
-        <text class="desc-icon">🚗</text>
-        <text class="desc-text">车主：可创建维修工单、查看车辆信息</text>
-      </view>
     </view>
 
     <button
@@ -127,7 +123,4 @@
     </view>
   </view>
 
-  <view class="footer-tip">
-    注册即表示同意《服务条款》和《隐私政策》
-  </view>
 </view>

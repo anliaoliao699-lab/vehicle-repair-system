@@ -14,7 +14,6 @@ Page({
         role: 'owner',
         roleIndex: 0,
         roleOptions: [
-            { value: 'owner', label: '车主 🚗' },
             { value: 'worker', label: '员工 🔧' },
             { value: 'admin', label: '管理员 👨‍💼' }
         ],

@@ -12,6 +12,7 @@ Page({
         recentOrders: [],
         stats: {
             totalOrders: 0,
+            pendingOrders: 0,    // ✅ 新增：待分配（new状态）
             assignedOrders: 0,
             completedOrders: 0,
         },
@@ -46,12 +47,15 @@ Page({
             if (!user) return;
 
             // 获取所有工单统计
-            // ✅ 后端已经根据角色过滤了数据，前端直接使用即可
             const allOrders = await get('/work-orders', { limit: 10000 });
             const orders = Array.isArray(allOrders) ? allOrders : (allOrders.items || []);
 
             // 统计数据
             const totalOrders = orders.length;
+            // ✅ 新增：待分配（new状态）
+            const pendingOrders = orders.filter(o =>
+                (o.status || '').toLowerCase() === 'new'
+            ).length;
             const assignedOrders = orders.filter(o =>
                 (o.status || '').toLowerCase() === 'assigned'
             ).length;
@@ -62,32 +66,80 @@ Page({
             this.setData({
                 stats: {
                     totalOrders,
+                    pendingOrders,      // ✅ 新增
                     assignedOrders,
                     completedOrders,
                 },
             });
 
-            console.log('📊 Dashboard统计:', { totalOrders, assignedOrders, completedOrders });
+            console.log('📊 Dashboard统计:', { totalOrders, pendingOrders, assignedOrders, completedOrders });
         } catch (err) {
             console.error('❌ 加载Dashboard数据失败:', err);
         }
     },
     // 跳转到工单列表（全部）
     navigateToOrders() {
-        wx.navigateTo({
+        wx.switchTab({
             url: "/pages/work-order/list",
+            success: () => {
+                // ✅ 通过事件通知 list 页面刷新并设置状态
+                setTimeout(() => {
+                    const pages = getCurrentPages();
+                    const listPage = pages.find(p => p.route === 'pages/work-order/list');
+                    if (listPage) {
+                        listPage.setData({ status: 'all', currentStatusLabel: '全部' });
+                        listPage.loadWorkOrders();
+                    }
+                }, 100);
+            }
+        });
+    },
+    // ✅ 新增：跳转到工单列表（待分配/新建）
+    navigateToPending() {
+        wx.switchTab({
+            url: "/pages/work-order/list",
+            success: () => {
+                setTimeout(() => {
+                    const pages = getCurrentPages();
+                    const listPage = pages.find(p => p.route === 'pages/work-order/list');
+                    if (listPage) {
+                        listPage.setData({ status: 'new', currentStatusLabel: '待分配' });
+                        listPage.loadWorkOrders();
+                    }
+                }, 100);
+            }
         });
     },
     // 跳转到工单列表（已分配）
     navigateToAssigned() {
-        wx.navigateTo({
-            url: "/pages/work-order/list?status=assigned",
+        wx.switchTab({
+            url: "/pages/work-order/list",
+            success: () => {
+                setTimeout(() => {
+                    const pages = getCurrentPages();
+                    const listPage = pages.find(p => p.route === 'pages/work-order/list');
+                    if (listPage) {
+                        listPage.setData({ status: 'assigned', currentStatusLabel: '已分配' });
+                        listPage.loadWorkOrders();
+                    }
+                }, 100);
+            }
         });
     },
     // 跳转到工单列表（已完成）
     navigateToCompleted() {
-        wx.navigateTo({
-            url: "/pages/work-order/list?status=completed",
+        wx.switchTab({
+            url: "/pages/work-order/list",
+            success: () => {
+                setTimeout(() => {
+                    const pages = getCurrentPages();
+                    const listPage = pages.find(p => p.route === 'pages/work-order/list');
+                    if (listPage) {
+                        listPage.setData({ status: 'completed', currentStatusLabel: '已完成' });
+                        listPage.loadWorkOrders();
+                    }
+                }, 100);
+            }
         });
     },
     // ✅ 创建工单（仅管理员）
